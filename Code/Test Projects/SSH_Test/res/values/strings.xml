@@ -6,5 +6,10 @@
     <string name="title_connection">Connection</string>
     <string name="title_command">Command</string>
     <string name="title_section3">Section 3</string>
+    <string name="username_morbius">jdahleen</string>
+    <string name="hostname_morbius">morbius.mscs.mu.edu</string>
+    <string name="password_morbius">Lhsships09</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
 
 </resources>

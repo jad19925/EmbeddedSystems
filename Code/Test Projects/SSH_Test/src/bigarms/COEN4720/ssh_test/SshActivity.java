@@ -1,9 +1,14 @@
 package bigarms.COEN4720.ssh_test;
 
 import java.util.Locale;
+import java.util.concurrent.Semaphore;
 
 import android.app.ActionBar;
+import android.app.AlertDialog;
+import android.app.DialogFragment;
 import android.app.FragmentTransaction;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -18,9 +23,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import com.jcraft.jsch.*;
 
 public class SshActivity extends FragmentActivity implements
-		ActionBar.TabListener {
+		ActionBar.TabListener, YesNoDialogFragment.YesNoDialogListener {
 
 	/**
 	 * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -35,7 +41,13 @@ public class SshActivity extends FragmentActivity implements
 	/**
 	 * The {@link ViewPager} that will host the section contents.
 	 */
-	ViewPager mViewPager;
+	private ViewPager mViewPager;
+	private JSch jsch;
+	private Session session;
+	private boolean tempBool;
+	private String retText;
+	public final Semaphore dialogWait = new Semaphore(1);
+	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +88,16 @@ public class SshActivity extends FragmentActivity implements
 					.setText(mSectionsPagerAdapter.getPageTitle(i))
 					.setTabListener(this));
 		}
+		
+		jsch = new JSch();
+		try {
+			session = jsch.getSession(getString(R.string.username_morbius, R.string.hostname_morbius));
+		} catch (JSchException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		session.setPassword(getString(R.string.password_morbius));
+		tempBool = false;
 	}
 
 	@Override
@@ -101,6 +123,37 @@ public class SshActivity extends FragmentActivity implements
 	@Override
 	public void onTabReselected(ActionBar.Tab tab,
 			FragmentTransaction fragmentTransaction) {
+	}
+	
+	public void showYesNoDialog(String message){
+		try {
+			dialogWait.acquire();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		DialogFragment dialog = new YesNoDialogFragment();
+		dialog.show(getFragmentManager(), "NoticeDialogFragment");
+	}
+	
+	public void onDialogPositiveClick(DialogFragment dialog){
+		//user touched ok
+		tempBool = true;
+		dialogWait.release();
+	}
+	
+	public void onDialogNegativeClick(DialogFragment dialog){
+		//user touched cancel
+		tempBool = false;
+		dialogWait.release();
+	}
+	
+	public boolean getTempBool(){
+		return tempBool;
+	}
+	
+	public String getRetText(){
+		return retText;
 	}
 
 	/**
@@ -253,6 +306,57 @@ public class SshActivity extends FragmentActivity implements
 			connectionTextView.setText("Command View\nPage: " + Integer.toString(getArguments().getInt(
 					ARG_SECTION_NUMBER)));
 			return rootView;
+		}
+	}
+	
+	/**
+	 * UserInfo class implementation for sch
+	 */
+	public static class MyUserInfo implements UserInfo{
+		String passwd;
+		SshActivity activity;
+		
+		public String getPassword(){ return passwd; }
+		public boolean promptYesNo(String str){
+			boolean retVal;
+			
+			//instantiate dialog from activity
+			activity.showYesNoDialog(str);
+			//attempt to acquire semaphore to wait for tempBool to be set by dialog.
+			try {
+				activity.dialogWait.acquire();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			retVal = activity.getTempBool();
+			activity.dialogWait.release();
+			
+			return retVal;
+		}
+		
+		public String getPassphrase(){ return null; }
+		public boolean promptPassphrase(String message){ return true; }
+		public boolean promptPassword(String message){
+			boolean retVal;
+//See new bookmark for a better way to do this
+			//instantiate dialog from activity
+			//activity.showYesNoDialog(str);
+			//attempt to acquire semaphore to wait for tempBool to be set by dialog.
+			try {
+				activity.dialogWait.acquire();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			retVal = activity.getTempBool();
+			activity.dialogWait.release();
+			
+			return retVal;
+		}
+		
+		public void setActivity(SshActivity act){
+			activity = act;
 		}
 	}
 }
