@@ -27,7 +27,7 @@ public class Server extends Activity {
 
 	private TextView text;
 
-	public static final int SERVERPORT = 5000;
+	public static final int SERVERPORT = 9923;
 
 	 public String getIpAddr() {
 	    WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
