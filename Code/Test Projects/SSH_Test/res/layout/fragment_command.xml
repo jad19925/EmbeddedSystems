@@ -17,4 +17,21 @@
         android:layout_alignParentTop="true"
         android:text="Command Text" />
 
+    <TextView
+        android:id="@+id/outView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/commandText"
+        android:layout_below="@+id/commandText"
+        android:layout_marginTop="80dp"
+        android:text="TextView" />
+
+    <Button
+        android:id="@+id/buttonGo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/commandText"
+        android:layout_below="@+id/commandText"
+        android:text="Button" />
+
 </RelativeLayout>

@@ -1,5 +1,9 @@
 package bigarms.COEN4720.ssh_test;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.util.Locale;
 import java.util.concurrent.Semaphore;
 
@@ -7,6 +11,7 @@ import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.FragmentTransaction;
+import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -16,17 +21,20 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
+import android.text.InputType;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import com.jcraft.jsch.*;
 
 public class SshActivity extends FragmentActivity implements
-		ActionBar.TabListener, YesNoDialogFragment.YesNoDialogListener {
+		ActionBar.TabListener, YesNoDialogFragment.YesNoDialogListener{
 
 	/**
 	 * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -42,15 +50,17 @@ public class SshActivity extends FragmentActivity implements
 	 * The {@link ViewPager} that will host the section contents.
 	 */
 	private ViewPager mViewPager;
-	private JSch jsch;
-	private Session session;
 	private boolean tempBool;
 	private String retText;
 	public final Semaphore dialogWait = new Semaphore(1);
-	
+	private Thread prThread;
+	private SshNetwork network;
+	private Thread netThread;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		tempBool = false;
+		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_ssh);
 
@@ -89,15 +99,55 @@ public class SshActivity extends FragmentActivity implements
 					.setTabListener(this));
 		}
 		
-		jsch = new JSch();
-		try {
-			session = jsch.getSession(getString(R.string.username_morbius, R.string.hostname_morbius));
-		} catch (JSchException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		session.setPassword(getString(R.string.password_morbius));
-		tempBool = false;
+		network = new SshNetwork();
+		network.setActivity(this);
+		netThread = new Thread(network);
+		
+//		PipedInputStream iSendStream = new PipedInputStream();
+//		PipedOutputStream oSendStream = new PipedOutputStream();
+//		try {
+//			oSendStream.connect(iSendStream);
+//		} catch (IOException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
+		
+//		PipedInputStream iRcvStream = new PipedInputStream();
+//		PipedOutputStream oRcvStream = new PipedOutputStream();
+//		try {
+//			oRcvStream.connect(iRcvStream);
+//		} catch (IOException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
+		
+//		jsch = new JSch();
+//		try {
+//			//get a session with the remote server
+//			session = jsch.getSession(getString(R.string.username_morbius), getString(R.string.hostname_morbius));
+//			session.setPassword(getString(R.string.password_morbius));
+//			
+//			UserInfo ui = new MyUserInfo();
+//			((MyUserInfo) ui).setActivity(this);
+//			session.setUserInfo(ui);
+//			//session.connect(30000);
+//			
+//			//open a command channel
+//			//Channel channel = session.openChannel("shell");
+//			//channel.setInputStream(iSendStream);
+//			//channel.setOutputStream(oRcvStream);
+//		} catch (JSchException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		PipeReader pr = new PipeReader(iRcvStream,this);
+//		prThread = new Thread(pr);
+		/*Button button = (Button) findViewById(R.id.buttonGo);
+		button.setOnClickListener(new View.OnClickListener() {
+		    public void onClick(View v) {
+		        prThread.run();
+		    }
+		});*/ //button is null
 	}
 
 	@Override
@@ -146,6 +196,13 @@ public class SshActivity extends FragmentActivity implements
 		//user touched cancel
 		tempBool = false;
 		dialogWait.release();
+	}
+	
+	//connect button click
+	public void onConnectClick(View view){
+		((TextView) findViewById(R.id.connectionText)).setText("Connect button pushed");
+		//Thread netThread = new Thread(network);
+		netThread.run();
 	}
 	
 	public boolean getTempBool(){
@@ -339,20 +396,44 @@ public class SshActivity extends FragmentActivity implements
 		public boolean promptPassphrase(String message){ return true; }
 		public boolean promptPassword(String message){
 			boolean retVal;
-//See new bookmark for a better way to do this
-			//instantiate dialog from activity
-			//activity.showYesNoDialog(str);
-			//attempt to acquire semaphore to wait for tempBool to be set by dialog.
-			try {
-				activity.dialogWait.acquire();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			retVal = activity.getTempBool();
-			activity.dialogWait.release();
+
+			AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+			builder.setTitle("Password Prompt");
+			
+			//create text edit input
+			final EditText input = new EditText(activity);
+			input.setInputType(InputType.TYPE_CLASS_TEXT);
+			builder.setView(input);
+			
+			// Set up the buttons
+			builder.setPositiveButton("OK", new DialogInterface.OnClickListener() { 
+			    @Override
+			    public void onClick(DialogInterface dialog, int which) {
+			        passwd = input.getText().toString();
+			    }
+			});
+			builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+			    @Override
+			    public void onClick(DialogInterface dialog, int which) {
+			        passwd = null;
+			    	dialog.cancel();
+			    }
+			});
+			
+			AlertDialog dialog = builder.create();
+			dialog.show();
+			
+			retVal = (passwd != null);
 			
 			return retVal;
+		}
+		
+		public void showMessage(String message){
+			AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+			builder.setTitle("showMessage")
+				.setMessage(message);
+			AlertDialog dialog = builder.create();
+			dialog.show();
 		}
 		
 		public void setActivity(SshActivity act){
