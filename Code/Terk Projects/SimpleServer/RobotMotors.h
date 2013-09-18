@@ -1,0 +1,41 @@
+/*
+ * RobotMotors.h
+ *
+ *  Created on: Sep 7, 2013
+ *      Author: jacob
+ */
+#include <qemotortraj.h>
+
+#ifndef ROBOTMOTORS_H_
+#define ROBOTMOTORS_H_
+
+#define LEFT_FRONT	0
+#define RIGHT_FRONT 1
+#define LEFT_REAR	2
+#define RIGHT_REAR	3
+
+class RobotMotors {
+public:
+	RobotMotors();
+	virtual ~RobotMotors();
+
+	//method to move the robot forward, speed ranges from 5000-?
+	//10000 is a normal, relatively slow value
+	void moveForward(int speed);
+	//method to move the robot backward, speed ranges from 5000-?
+	//10000 is a normal, relatively slow value
+	void moveBackward(int speed);
+	//method to turn the robot right, speed ranges from 2000-?
+	//10000 is a normal, relatively slow value
+	void turnRight(int speed);
+	//method to turn the robot left, speed ranges from 2000-?
+	//10000 is a normal, relatively slow value
+	void turnLeft(int speed);
+	//stops the robot
+	void stop();
+
+private:
+	CQEMotorTraj * motor;
+};
+
+#endif /* ROBOTMOTORS_H_ */
