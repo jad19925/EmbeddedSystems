@@ -19,7 +19,7 @@ public class Client extends Activity {
 
 	private static final int SERVERPORT = 9923;//Open Port on Android Devices
 	//All incoming Wi-Fi data comes through Port 9923 on the Android Device
-	private static final String SERVER_IP = "134.48.171.210";
+	private static final String SERVER_IP = "192.168.1.127";
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
