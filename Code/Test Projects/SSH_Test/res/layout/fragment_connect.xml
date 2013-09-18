@@ -15,8 +15,15 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:layout_marginLeft="36dp"
-        android:layout_marginTop="32dp"
         android:text="Connection Tab" />
+
+    <Button
+        android:id="@+id/buttonConnect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/connectionText"
+        android:layout_below="@+id/connectionText"
+        android:onClick="onConnectClick"
+        android:text="Connect" />
 
 </RelativeLayout>
