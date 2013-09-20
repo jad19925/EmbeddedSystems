@@ -4,6 +4,8 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -16,6 +18,8 @@ import android.widget.EditText;
 public class Client extends Activity {
 
 	private Socket socket;
+	private DatagramSocket dSocket;
+	private static final boolean UDP = true;
 
 	private static final int SERVERPORT = 9923;//Open Port on Android Devices
 	//All incoming Wi-Fi data comes through Port 9923 on the Android Device
@@ -33,10 +37,18 @@ public class Client extends Activity {
 		try {
 			EditText et = (EditText) findViewById(R.id.EditText01);
 			String str = et.getText().toString();
-			PrintWriter out = new PrintWriter(new BufferedWriter(
+			if(!UDP) {
+				PrintWriter out = new PrintWriter(new BufferedWriter(
 					new OutputStreamWriter(socket.getOutputStream())),
 					true);
-			out.println(str);
+				out.println(str);
+			}
+			else {
+				byte[] data = new byte[1024];
+				DatagramPacket dPack = new DatagramPacket(data,1024);
+				dPack.setData(str.getBytes());
+				dSocket.send(dPack);
+			}
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -54,7 +66,13 @@ public class Client extends Activity {
 			try {
 				InetAddress serverAddr = InetAddress.getByName(SERVER_IP);
 
-				socket = new Socket(serverAddr, SERVERPORT);
+				if(!UDP) {
+					socket = new Socket(serverAddr, SERVERPORT);
+				}
+				else {
+					dSocket = new DatagramSocket();
+					dSocket.connect(InetAddress.getByName(SERVER_IP), SERVERPORT);
+				}
 
 			} catch (UnknownHostException e1) {
 				e1.printStackTrace();
