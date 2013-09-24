@@ -9,7 +9,8 @@ motormotion.d motormotion.o: ../motormotion.cxx \
   /usr/local/terkos/arm/arm-oe-linux-uclibcgnueabi/include/terk/9302hw.h \
   /usr/local/terkos/arm/arm-oe-linux-uclibcgnueabi/include/terk/memmap.h \
   ../RobotMotors.h \
-  /usr/local/terkos/arm/arm-oe-linux-uclibcgnueabi/include/terk/qemotortraj.h
+  /usr/local/terkos/arm/arm-oe-linux-uclibcgnueabi/include/terk/qemotortraj.h \
+  /usr/local/terkos/arm/arm-oe-linux-uclibcgnueabi/include/terk/qegpioint.h
 
 /usr/local/terkos/arm/arm-oe-linux-uclibcgnueabi/include/terk/qemotortraj.h:
 
@@ -32,3 +33,5 @@ motormotion.d motormotion.o: ../motormotion.cxx \
 ../RobotMotors.h:
 
 /usr/local/terkos/arm/arm-oe-linux-uclibcgnueabi/include/terk/qemotortraj.h:
+
+/usr/local/terkos/arm/arm-oe-linux-uclibcgnueabi/include/terk/qegpioint.h:

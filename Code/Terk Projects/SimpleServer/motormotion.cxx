@@ -9,6 +9,7 @@
 #include <textlcd.h>
 #include <time.h>
 #include "RobotMotors.h"
+#include <qegpioint.h>
 
 #include <errno.h>
 #include <sys/socket.h>
@@ -19,39 +20,27 @@
 #define MAXBUF		1024
 #define UDP			1
 
+void bumpCallback(unsigned int i, struct timeval *stTimeval, void *userdata);
+
 int main(int argc, char **argv)
 {
     CTextLcd &lcd = CTextLcd::GetRef();
+    CQEGpioInt &io = CQEGpioInt::GetRef();
     // get motor reference
-    //CQEMotorTraj &motor = CQEMotorTraj::GetRef();
     RobotMotors motors;
     int speed = 10000;
+    //void * test;
 
     printf("Hello World!");
     lcd.printf("Hello World!");
-    //sleep is in seconds, so this will display Hello World for 2 seconds before moving
-    //sleep(2);
 
-    //lcd.Clear();
-    //lcd.printf("Moving Forward");
-
-    // test moving forward
-    //motors.moveForward(10000);
-    //sleep(30);
-
-    //test moving backward
-    //motors.moveBackward(10000);
-    //sleep(30);
-
-    //test turning right
-    //motors.turnRight(7500);
-    //sleep(15);
-
-    //test turning left
-    //motors.turnLeft(7500);
-    //sleep(5);
-
-    //motors.stop();
+    io.SetData(0x0000);
+    io.SetDataDirection(0x0000);
+    io.SetInterrupt(0,true);
+    io.SetInterrupt(1,true);
+    //void (*foo) (unsigned int, struct timeval *);
+    //foo = &bumpCallback;
+    io.RegisterCallback(0, NULL, bumpCallback);
 
     int sockfd;
     struct sockaddr_in self;
@@ -115,17 +104,6 @@ int main(int argc, char **argv)
     //message loop
     while (1)
     {
-    	//printf("loop\n");
-    	//int clientfd;
-    	//struct sockaddr_in client_addr;
-    	//socklen_t addrlen=sizeof(client_addr);
-
-    	/*---accept a connection (creating a data pipe)---*/
-    	//clientfd = accept(sockfd, (struct sockaddr*)&client_addr, &addrlen);
-    	//printf("%s:%d connected\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
-
-    	/*---Echo back anything sent---*/
-    	//send(clientfd, buffer, recv(clientfd, buffer, MAXBUF, 0), 0);
 #ifndef UDP
     	ret = recv(clientfd, buffer, MAXBUF, 0);
 #else
@@ -186,4 +164,9 @@ int main(int argc, char **argv)
 
     CTextLcd::Release();
     return 0;
+}
+
+void bumpCallback(unsigned int i, struct timeval *stTimeval, void *usrdata)
+{
+	printf("Received interrupt.\ni=%d",i);
 }
