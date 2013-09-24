@@ -45,6 +45,7 @@ int main(int argc, char **argv)
 	//lcd.Clear();
 	printf("Enter your commands:\n");
 	char command[10];
+	char prevcommand[10];
 	memset(command,0,10);
 
 	while (1 == keeprunning)
@@ -56,33 +57,45 @@ int main(int argc, char **argv)
 		lcd.Clear();
 		lcd.printf("%s", command);
 		commandFile.close();
-		sleep(0.05);
 
-		if(0 == strncmp("Exit",command,4))
+		if(0 != strncmp(command, prevcommand, 9))
 		{
-			printf("This should really Exit\n");
-			keeprunning = 0;
-			break;
+			if(0 == strncmp("Exit",command,4))
+			{
+				printf("This should really Exit\n");
+				keeprunning = 0;
+				break;
+			}
+			if(0 == strncmp("forward",command,7))
+			{
+				motors.moveForward(8000);
+			}
+			else if(0 == strncmp("backward",command,8))
+			{
+				motors.moveBackward(8000);
+			}
+			else if(0 == strncmp("left",command,4))
+			{
+				motors.turnLeft(8000);
+			}
+			else if(0 == strncmp("right",command,5))
+			{
+				motors.turnRight(8000);
+			}
+			else if(0 == strncmp("stop",command,4))
+			{
+				motors.stop();
+			}
 		}
-		if(0 == strncmp("forward",command,7))
-		{
-			motors.moveForward(8000);
-		}
-		else if(0 == strncmp("backward",command,8))
-		{
-			motors.moveBackward(8000);
-		}
-		else if(0 == strncmp("left",command,4))
-		{
-			motors.turnLeft(8000);
-		}
-		else if(0 == strncmp("right",command,5))
-		{
-			motors.turnRight(8000);
-		}
-		else if(0 == strncmp("stop",command,4))
+
+		bool bump1IsOn = !(io.GetData() & 0x0001); //bump sensor 1 connected to digital port 1
+		bool bump2IsOn = !(io.GetData() & 0x0002); //bump sensor 2
+
+		if(bump1IsOn || bump2IsOn)
 		{
 			motors.stop();
+			lcd.Clear();
+			lcd.printf("BUMP");
 		}
 
 		/*while(1)
@@ -124,6 +137,8 @@ int main(int argc, char **argv)
 				io.GetData() & 0x8000);*/
 		//sleep(3);
 		//motors.stop();
+		strncpy(prevcommand, command, 9);
+		sleep(0.1);
 		printf("end\n");
 		memset(command,0,10);
 
