@@ -1,0 +1,76 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_greenyellow"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:textAlignment="center"
+    tools:context=".Client" >
+
+	<Button android:id="@+id/stop" android:layout_width="match_parent"
+		android:layout_height="wrap_content" android:background="@color/color_red"
+		android:minHeight="80dip" android:text="@string/string_stop"
+		android:textColor="@color/color_white" android:textSize="@dimen/largeFontStatic24"
+		android:textStyle="bold" android:onClick="onClick" />
+
+
+	<RelativeLayout android:layout_width="fill_parent"
+		android:layout_height="fill_parent" android:paddingLeft="16dp"
+		android:paddingRight="16dp" android:background="@color/color_white">
+
+		<Button android:id="@+id/left" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:layout_alignParentLeft="true"
+			android:layout_centerVertical="true" android:layout_marginLeft="@dimen/margin12"
+			android:padding="@dimen/margin24" android:paddingBottom="@dimen/margin24"
+			android:text="@string/string_left" android:onClick="onClick" />
+
+		<Button android:id="@+id/forward" android:layout_width="match_parent"
+			android:layout_height="wrap_content" android:layout_alignParentTop="true"
+			android:layout_centerHorizontal="true" android:layout_marginTop="@dimen/margin24"
+			android:paddingBottom="@dimen/margin24" android:paddingTop="@dimen/margin24"
+			android:text="@string/string_forward" android:textAlignment="center"
+			android:onClick="onClick" />
+
+		<Button android:id="@+id/backward" android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_alignParentBottom="true"
+			android:layout_centerHorizontal="true" android:layout_marginBottom="@dimen/margin24"
+			android:paddingBottom="@dimen/margin24" android:paddingTop="@dimen/margin24"
+			android:text="@string/string_backward" android:textAlignment="center"
+			android:onClick="onClick" />
+
+		<Button android:id="@+id/right" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:layout_alignParentRight="true"
+			android:layout_centerVertical="true" android:layout_marginRight="@dimen/margin12"
+			android:padding="@dimen/margin24" android:text="@string/string_right"
+			android:textAlignment="center" android:onClick="onClick" />
+
+		<Button
+		    android:id="@+id/speedbutton"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_below="@+id/forward"
+		    android:layout_centerHorizontal="true"
+		    android:layout_marginTop="16dp"
+		    android:text="@string/string_speed"
+		    android:textAlignment="center" 
+		    android:onClick="showSpeedPickerDialog"  />
+
+		<Button
+		    android:id="@+id/exit"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_above="@+id/backward"
+		    android:layout_centerHorizontal="true"
+		    android:text="@string/string_exit"
+		    android:textAlignment="center" android:onClick="onClick"
+		     />
+
+	</RelativeLayout>
+
+
+</LinearLayout>
