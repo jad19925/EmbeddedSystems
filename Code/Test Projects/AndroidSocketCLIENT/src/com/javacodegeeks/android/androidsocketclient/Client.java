@@ -21,9 +21,9 @@ public class Client extends Activity {
 	private DatagramSocket dSocket;
 	private static final boolean UDP = true;
 
-	private static final int SERVERPORT = 9923;//Open Port on Android Devices
+	private static final int SERVERPORT = 8080;//9923;//Open Port on Android Devices
 	//All incoming Wi-Fi data comes through Port 9923 on the Android Device
-	private static final String SERVER_IP = "192.168.1.127";
+	private static final String SERVER_IP = "192.168.1.148";
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
