@@ -46,10 +46,15 @@ public class Server extends Activity implements LocationListener {
 	private static final String VEX_IP = "192.168.1.127";
 
 	//gps class values
-	private TextView latituteField;
+	private TextView latitudeField;
 	private TextView longitudeField;
+	private TextView toDestField;
 	private LocationManager locationManager;
 	private String provider;
+	private double latitude;
+	private double longitude;
+	private final double destLat = 43.036969;
+	private final double destLon = -87.929579;
 	
 	public String getIpAddr() {
 		//Get Wi-Fi information
@@ -75,8 +80,9 @@ public class Server extends Activity implements LocationListener {
 		
 		//Text Field
 		text = (TextView) findViewById(R.id.text2);
-		latituteField = (TextView) findViewById(R.id.TextView02);
+		latitudeField = (TextView) findViewById(R.id.TextView02);
 	    longitudeField = (TextView) findViewById(R.id.TextView04);
+	    toDestField = (TextView) findViewById(R.id.TextView06);
 		
 		//Handler that receives information from Client
 		updateConversationHandler = new Handler();
@@ -97,7 +103,7 @@ public class Server extends Activity implements LocationListener {
 	      System.out.println("Provider " + provider + " has been selected.");
 	      onLocationChanged(location);
 	    } else {
-	      latituteField.setText("Location not available");
+	      latitudeField.setText("Location not available");
 	      longitudeField.setText("Location not available");
 	    }
 	}
@@ -213,8 +219,12 @@ public class Server extends Activity implements LocationListener {
 	  public void onLocationChanged(Location location) {
 	    double lat = (location.getLatitude());
 	    double lng = (location.getLongitude());
-	    latituteField.setText(String.valueOf(lat));
+	    latitude = lat;
+	    longitude = lng;
+	    latitudeField.setText(String.valueOf(lat));
 	    longitudeField.setText(String.valueOf(lng));
+	    double toDest = getBearingToDest(lat, lng, destLat, destLon);
+	    toDestField.setText(String.valueOf(toDest));
 	  }
 
 	  @Override
@@ -234,5 +244,25 @@ public class Server extends Activity implements LocationListener {
 	  public void onProviderDisabled(String provider) {
 	    Toast.makeText(this, "Disabled provider " + provider,
 	        Toast.LENGTH_SHORT).show();
+	  }
+	  
+	  public double getBearingToDest(double startLat, double startLon, double endLat, double endLon) {
+		  startLat = Math.toRadians(startLat);
+		  startLon = Math.toRadians(startLon);
+		  endLat = Math.toRadians(endLat);
+		  endLon = Math.toRadians(endLon);
+		  
+		  double dLon = endLon - startLon;
+		  double dPhi = Math.log(Math.tan(endLat/2.0+Math.PI/4.0)/Math.tan(startLat/2.0+Math.PI/4.0));
+		  if(Math.abs(dLon) > Math.PI) {
+			  if(dLon > 0.0) {
+				  dLon = -(2.0 * Math.PI - dLon);
+			  }
+			  else {
+				  dLon = (2.0 * Math.PI - dLon);
+			  }
+		  }
+		  
+		  return (Math.toDegrees(Math.atan2(dLon, dPhi)) + 360.0) % 360.0;
 	  }
 }
