@@ -24,6 +24,10 @@ import edu.coen4720.bigarms.Android2WayServer.R;
 
 import android.app.Activity;
 import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -35,7 +39,7 @@ import android.os.Handler;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class Server extends Activity implements LocationListener {
+public class Server extends Activity implements LocationListener, SensorEventListener {
 	//network class values
 	private DatagramSocket outSocket;
 	Handler updateConversationHandler;
@@ -48,13 +52,21 @@ public class Server extends Activity implements LocationListener {
 	//gps class values
 	private TextView latitudeField;
 	private TextView longitudeField;
-	private TextView toDestField;
+	private TextView toDestBField;
+	private TextView toDestDField;
+	private TextView tvFacing;
 	private LocationManager locationManager;
 	private String provider;
+	private SensorManager mSensorManager;
+	private float[] accValues = null;
+	private float[] magValues = null;
+	
 	private double latitude;
 	private double longitude;
+	private double facing;
 	private final double destLat = 43.036969;
 	private final double destLon = -87.929579;
+	private String lastCommand;
 	
 	public String getIpAddr() {
 		//Get Wi-Fi information
@@ -82,7 +94,8 @@ public class Server extends Activity implements LocationListener {
 		text = (TextView) findViewById(R.id.text2);
 		latitudeField = (TextView) findViewById(R.id.TextView02);
 	    longitudeField = (TextView) findViewById(R.id.TextView04);
-	    toDestField = (TextView) findViewById(R.id.TextView06);
+	    toDestBField = (TextView) findViewById(R.id.TextView06);
+	    toDestDField = (TextView) findViewById(R.id.TextView08);
 		
 		//Handler that receives information from Client
 		updateConversationHandler = new Handler();
@@ -97,6 +110,11 @@ public class Server extends Activity implements LocationListener {
 	    Criteria criteria = new Criteria();
 	    provider = locationManager.getBestProvider(criteria, false);
 	    Location location = locationManager.getLastKnownLocation(provider);
+	    
+	    // TextView that will tell the user what degree is he heading
+		tvFacing = (TextView) findViewById(R.id.tvFacing);
+		// initialize your android device sensor capabilities
+		mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
 	    // Initialize the location fields
 	    if (location != null) {
@@ -201,68 +219,114 @@ public class Server extends Activity implements LocationListener {
 	}
 	
 	/* Request updates at startup */
-	  @Override
-	  protected void onResume() {
-	    super.onResume();
+	@Override
+	protected void onResume() {
+		super.onResume();
 	    locationManager.requestLocationUpdates(provider, 1, 1, this);
-	    
-	  }
+	    // for the system's orientation sensor registered listeners
+	    mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+	  				SensorManager.SENSOR_DELAY_GAME);
+	    mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),
+  				SensorManager.SENSOR_DELAY_GAME);
+	}
 
-	  /* Remove the locationlistener updates when Activity is paused */
-	  @Override
-	  protected void onPause() {
-	    super.onPause();
+	/* Remove the locationlistener updates when Activity is paused */
+	@Override
+	protected void onPause() {
+		  super.onPause();
 	    locationManager.removeUpdates(this);
-	  }
+	    // to stop the listener and save battery
+	    mSensorManager.unregisterListener(this);
+	}
 
-	  @Override
-	  public void onLocationChanged(Location location) {
-	    double lat = (location.getLatitude());
-	    double lng = (location.getLongitude());
-	    latitude = lat;
-	    longitude = lng;
-	    latitudeField.setText(String.valueOf(lat));
-	    longitudeField.setText(String.valueOf(lng));
-	    double toDest = getBearingToDest(lat, lng, destLat, destLon);
-	    toDestField.setText(String.valueOf(toDest));
-	  }
+	@Override
+	public void onLocationChanged(Location location) {
+		double lat = (location.getLatitude());
+		double lng = (location.getLongitude());
+		latitude = lat;
+		longitude = lng;
+		latitudeField.setText(String.valueOf(lat));
+		longitudeField.setText(String.valueOf(lng));
+		double[] bearing = {0, 0};
+		getBearingToDest(lat, lng, destLat, destLon, bearing);
+		toDestBField.setText(String.valueOf(bearing[0]));
+		toDestDField.setText(String.valueOf(bearing[1]));
+		
+		//send control messages;
+		
+	}
 
-	  @Override
-	  public void onStatusChanged(String provider, int status, Bundle extras) {
+	@Override
+	public void onStatusChanged(String provider, int status, Bundle extras) {
 
+	}
 
-	  }
-
-	  @Override
-	  public void onProviderEnabled(String provider) {
+	@Override
+	public void onProviderEnabled(String provider) {
 	    Toast.makeText(this, "Enabled new provider " + provider,
 	        Toast.LENGTH_SHORT).show();
 
-	  }
+	}
 
-	  @Override
-	  public void onProviderDisabled(String provider) {
+	@Override
+	public void onProviderDisabled(String provider) {
 	    Toast.makeText(this, "Disabled provider " + provider,
 	        Toast.LENGTH_SHORT).show();
-	  }
+	}
 	  
-	  public double getBearingToDest(double startLat, double startLon, double endLat, double endLon) {
-		  startLat = Math.toRadians(startLat);
-		  startLon = Math.toRadians(startLon);
-		  endLat = Math.toRadians(endLat);
-		  endLon = Math.toRadians(endLon);
+	@Override
+	public void onSensorChanged(SensorEvent event) {
+		float[] R = new float[9];
+		float[] I = new float[9];
+		float[] orientation = new float[3];
+		
+		if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+			accValues = event.values;
+		}
+		else if(event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+			magValues = event.values;
+		}
+		
+		if(accValues != null && magValues != null) {
+			SensorManager.getRotationMatrix(R, I, accValues, magValues);
+			SensorManager.getOrientation(R, orientation);
+			facing = Math.round(Math.toDegrees(orientation[0]));
+			if(facing < 0) {
+				facing = facing + 360.0;
+			}
+			tvFacing.setText("Facing (Degrees): " + Double.toString(facing) + "û");
+		}
+	}
+
+	@Override
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {
+		// not in use
+	}
+	  
+	public void getBearingToDest(double startLat, double startLon, double endLat, double endLon, double[] bearing) {
+		startLat = Math.toRadians(startLat);
+		startLon = Math.toRadians(startLon);
+		endLat = Math.toRadians(endLat);
+		endLon = Math.toRadians(endLon);
+		final double R = 6371000; //radius of earth in meters
 		  
-		  double dLon = endLon - startLon;
-		  double dPhi = Math.log(Math.tan(endLat/2.0+Math.PI/4.0)/Math.tan(startLat/2.0+Math.PI/4.0));
-		  if(Math.abs(dLon) > Math.PI) {
-			  if(dLon > 0.0) {
-				  dLon = -(2.0 * Math.PI - dLon);
-			  }
-			  else {
-				  dLon = (2.0 * Math.PI - dLon);
-			  }
-		  }
+		double dLon = endLon - startLon;
+		double dPhi = Math.log(Math.tan(endLat/2.0+Math.PI/4.0)/Math.tan(startLat/2.0+Math.PI/4.0));
+		if(Math.abs(dLon) > Math.PI) {
+			if(dLon > 0.0) {
+				dLon = -(2.0 * Math.PI - dLon);
+			}
+			else {
+				dLon = (2.0 * Math.PI - dLon);
+			}
+		}
 		  
-		  return (Math.toDegrees(Math.atan2(dLon, dPhi)) + 360.0) % 360.0;
-	  }
+		bearing[0] = (Math.toDegrees(Math.atan2(dLon, dPhi)) + 360.0) % 360.0;
+		
+		double dLat = endLat - startLat;
+		double a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+				   Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(startLat) * Math.cos(endLat);
+		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+		bearing[1] = R * c;
+	}
 }
