@@ -26,6 +26,10 @@ import android.widget.Toast;
 
 import android.app.Activity;
 import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -34,12 +38,16 @@ import android.os.Bundle;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class GPS extends Activity implements LocationListener {
+public class GPS extends Activity implements LocationListener, SensorEventListener {
   private TextView latituteField;
   private TextView longitudeField;
   private LocationManager locationManager;
   private String provider;
+  
+	// device sensor manager
+	private SensorManager mSensorManager;
 
+	TextView tvFacing;
   
 /** Called when the activity is first created. */
 
@@ -57,6 +65,12 @@ public class GPS extends Activity implements LocationListener {
     provider = locationManager.getBestProvider(criteria, false);
     Location location = locationManager.getLastKnownLocation(provider);
 
+	// TextView that will tell the user what degree is he heading
+	tvFacing = (TextView) findViewById(R.id.tvFacing);
+
+	// initialize your android device sensor capabilities
+	mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+	
     // Initialize the location fields
     if (location != null) {
       System.out.println("Provider " + provider + " has been selected.");
@@ -65,21 +79,29 @@ public class GPS extends Activity implements LocationListener {
       latituteField.setText("Location not available");
       longitudeField.setText("Location not available");
     }
+    
   }
 
   /* Request updates at startup */
   @Override
   protected void onResume() {
     super.onResume();
+    //Start updating GPS coordinates on a consistent basis
     locationManager.requestLocationUpdates(provider, 1, 1, this);
     
+ // for the system's orientation sensor registered listeners
+ 		mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),
+ 				SensorManager.SENSOR_DELAY_GAME);
   }
 
   /* Remove the locationlistener updates when Activity is paused */
   @Override
   protected void onPause() {
     super.onPause();
+    //Stop updating GPS
     locationManager.removeUpdates(this);
+ // to stop the listener and save battery
+ 		mSensorManager.unregisterListener(this);
   }
 
   @Override
@@ -108,4 +130,18 @@ public class GPS extends Activity implements LocationListener {
     Toast.makeText(this, "Disabled provider " + provider,
         Toast.LENGTH_SHORT).show();
   }
+	@Override
+	public void onSensorChanged(SensorEvent event) {
+
+		// get the angle around the z-axis rotated
+		float degree = Math.round(event.values[0]);
+
+		tvFacing.setText("Facing (Degrees): " + Float.toString(degree) + " degrees");
+
+	}
+
+	@Override
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {
+		// not in use
+	}
 } 

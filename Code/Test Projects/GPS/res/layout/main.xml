@@ -54,4 +54,13 @@
         </TextView>
     </LinearLayout>
 
-</LinearLayout> 
+    <TextView
+        android:id="@+id/tvFacing"
+        android:layout_width="242dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="40dp"
+        android:layout_marginTop="20dp"
+        android:layout_weight="0.08"
+        android:text="Facing (Degrees): 0.0" />
+
+</LinearLayout>

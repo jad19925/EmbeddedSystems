@@ -15,7 +15,9 @@
     </uses-permission>
 
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" >
-    </uses-permission>
+    </uses-permission><uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     
     <application
         android:allowBackup="true"
@@ -24,7 +26,8 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name="edu.coen4720.bigarms.Android2WayServer.Server"
-            android:label="@string/app_name" >
+            android:label="@string/app_name" 
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
