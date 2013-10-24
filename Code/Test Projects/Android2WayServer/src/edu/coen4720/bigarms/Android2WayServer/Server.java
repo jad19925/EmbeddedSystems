@@ -64,9 +64,11 @@ public class Server extends Activity implements LocationListener, SensorEventLis
 	private double latitude;
 	private double longitude;
 	private double facing;
-	private final double destLat = 43.036969;
-	private final double destLon = -87.929579;
+	private double destLat = 43.036969;
+	private double destLon = -87.929579;
 	private String lastCommand;
+	private boolean autoMove = false;
+	private boolean stop = false;
 	
 	public String getIpAddr() {
 		//Get Wi-Fi information
@@ -200,11 +202,27 @@ public class Server extends Activity implements LocationListener, SensorEventLis
 					msg.startsWith("stop") || msg.startsWith("speed") || msg.startsWith("exit")){
 				dPack.setData(msg.getBytes());
 				send = true;
+				//set class message to stop auto-movement to waypoint
+				autoMove = false;
+			}
+			else if(msg.startsWith("lat")) {
+				//set class constant to stop moving while message is being parsed
+				autoMove = false;
+				//parse message, set parameters based on contents
+				//lat/long string format = "lat%flon%f"
+				String dString = msg.substring(3, msg.lastIndexOf('l'));
+				destLat = Double.parseDouble(dString);
+				dString = msg.substring(msg.lastIndexOf('n') + 1);
+				destLon = Double.parseDouble(dString);
+				text.setText(text.getText().toString() + "New Waypoint: "+ Double.toString(destLat) + ", " +
+						Double.toString(destLon) + "\n");
+				//set class message to restart movement
+				autoMove = true;
 			}
 			else{
 				//do some other processing yet to be determined
 				dPack.setData(new String("not a command").getBytes());
-				text.setText(text.getText().toString()+"Command not sent\n");
+				text.setText(text.getText().toString()+"Invalid Command\n");
 			}
 			
 			if(send){
@@ -253,7 +271,9 @@ public class Server extends Activity implements LocationListener, SensorEventLis
 		toDestDField.setText(String.valueOf(bearing[1]));
 		
 		//send control messages;
-		
+		if(autoMove) {
+			
+		}
 	}
 
 	@Override
