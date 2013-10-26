@@ -36,6 +36,8 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.View;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -55,6 +57,7 @@ public class Server extends Activity implements LocationListener, SensorEventLis
 	private TextView toDestBField;
 	private TextView toDestDField;
 	private TextView tvFacing;
+	private ScrollView messageScroll;
 	private LocationManager locationManager;
 	private String provider;
 	private SensorManager mSensorManager;
@@ -66,7 +69,9 @@ public class Server extends Activity implements LocationListener, SensorEventLis
 	private double facing;
 	private double destLat = 43.036969;
 	private double destLon = -87.929579;
-	private String lastCommand;
+	private double destBearing = 0;
+	private double destDistance = 0;
+	//private String lastCommand;
 	private boolean autoMove = false;
 	private boolean manMove = false;
 	
@@ -98,6 +103,7 @@ public class Server extends Activity implements LocationListener, SensorEventLis
 	    longitudeField = (TextView) findViewById(R.id.TextView04);
 	    toDestBField = (TextView) findViewById(R.id.TextView06);
 	    toDestDField = (TextView) findViewById(R.id.TextView08);
+	    messageScroll = (ScrollView) findViewById(R.id.scrollViewMessages);
 		
 		//Handler that receives information from Client
 		updateConversationHandler = new Handler();
@@ -130,8 +136,6 @@ public class Server extends Activity implements LocationListener, SensorEventLis
 
 	class CommunicationThread implements Runnable {
 
-		private BufferedReader input;
-		
 		private DatagramSocket receiveSocket;
 		
 		public CommunicationThread() {
@@ -194,6 +198,7 @@ public class Server extends Activity implements LocationListener, SensorEventLis
 		@Override
 		public void run() {
 			text.setText(text.getText().toString()+"Client Says: "+ msg + "\n");
+			messageScroll.fullScroll(View.FOCUS_DOWN);
 			boolean send = false;
 			byte[] data = new byte[1024];
 			DatagramPacket dPack = new DatagramPacket(data,1024);
@@ -244,9 +249,9 @@ public class Server extends Activity implements LocationListener, SensorEventLis
 	    locationManager.requestLocationUpdates(provider, 1, 1, this);
 	    // for the system's orientation sensor registered listeners
 	    mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
-	  				SensorManager.SENSOR_DELAY_GAME);
+	  				SensorManager.SENSOR_DELAY_NORMAL);
 	    mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),
-  				SensorManager.SENSOR_DELAY_GAME);
+  				SensorManager.SENSOR_DELAY_NORMAL);
 	}
 
 	/* Remove the locationlistener updates when Activity is paused */
@@ -268,39 +273,62 @@ public class Server extends Activity implements LocationListener, SensorEventLis
 		longitudeField.setText(String.valueOf(lng));
 		double[] bearing = {0, 0};
 		getBearingToDest(lat, lng, destLat, destLon, bearing);
+		destBearing = bearing[0];
+		destDistance = bearing[1];
 		toDestBField.setText(String.valueOf(bearing[0]));
 		toDestDField.setText(String.valueOf(bearing[1]));
 		
 		//send control messages
-		boolean send = false;
-		byte[] data = new byte[1024];
-		DatagramPacket dPack = new DatagramPacket(data,1024);
-		
-		if(manMove) {
-			//do nothing, gui is in control
-			System.out.println("manual movement");
-			text.setText(text.getText().toString() + "manual movement\n");
-		}
-		else if (autoMove) {
-			//movement algorithm for moving to waypoint
-			System.out.println("doing automove");
-			text.setText(text.getText().toString() + "doing automove\n");
-		}
-		else {
-			//send stop messages
-			dPack.setData(new String("stop").getBytes());
-			send = true;
-			//System.out.println("stopping");
-		}
-		
-		if(send){
-			try {
-				outSocket.send(dPack);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+//		boolean send = false;
+//		String msg;
+//		byte[] data = new byte[1024];
+//		DatagramPacket dPack = new DatagramPacket(data,1024);
+//		
+//		if(manMove) {
+//			//do nothing, gui is in control
+//			System.out.println("manual movement");
+//			text.setText(text.getText().toString() + "manual movement\n");
+//		}
+//		else if (autoMove) {
+//			//movement algorithm for moving to waypoint
+//			System.out.println("doing automove");
+//			text.setText(text.getText().toString() + "doing automove\n");
+//			while (facing !=  bearing[0]){
+//				if(facing - destBearing < -3){
+//					//set msg to turn left
+//					msg = "left";
+//					dPack.setData(msg.getBytes());
+//					send = true;
+//					
+//				}
+//				else if (destBearing - facing < -3){
+//					//set msg turn right
+//					msg = "right";
+//					dPack.setData(msg.getBytes());
+//					send = true;
+//				}
+//				else {
+//					msg = "forward";
+//					dPack.setData(msg.getBytes());
+//					send = true;
+//				}
+//			}
+//		}
+//		else {
+//			//send stop messages
+//			dPack.setData(new String("stop").getBytes());
+//			send = true;
+//			//System.out.println("stopping");
+//		}
+//		
+//		if(send){
+//			try {
+//				outSocket.send(dPack);
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		}
 	}
 
 	@Override
@@ -342,6 +370,63 @@ public class Server extends Activity implements LocationListener, SensorEventLis
 				facing = facing + 360.0;
 			}
 			tvFacing.setText("Facing (Degrees): " + Double.toString(facing) + "û");
+		}
+		
+		//send control messages
+		boolean send = false;
+		String msg;
+		byte[] data = new byte[1024];
+		DatagramPacket dPack = new DatagramPacket(data,1024);
+		
+		if(manMove) {
+			//do nothing, gui is in control
+			System.out.println("manual movement");
+			//text.setText(text.getText().toString() + "manual movement\n");
+		}
+		else if (autoMove) {
+			//movement algorithm for moving to waypoint
+			System.out.println("doing automove");
+			//text.setText(text.getText().toString() + "doing automove\n");
+			if(destDistance > 3){
+				if(facing - destBearing < -3){
+					//set msg to turn left
+					msg = "left";
+					dPack.setData(msg.getBytes());
+					send = true;
+				}
+				else if (destBearing - facing < -3){
+					//set msg turn right
+					msg = "right";
+					dPack.setData(msg.getBytes());
+					send = true;
+				}
+				else {
+					msg = "forward";
+					dPack.setData(msg.getBytes());
+					send = true;
+				}
+			}
+			else {
+				//stop when we reach the destination
+				msg = "stop";
+				dPack.setData(msg.getBytes());
+				send = true;
+			}
+		}
+		else {
+			//send stop messages
+			msg = "stop";
+			dPack.setData(msg.getBytes());
+			send = true;
+		}
+		
+		if(send){
+			try {
+				outSocket.send(dPack);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 
