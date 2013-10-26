@@ -61,14 +61,14 @@ public class Server extends Activity implements LocationListener, SensorEventLis
 	private float[] accValues = null;
 	private float[] magValues = null;
 	
-	private double latitude;
-	private double longitude;
+	//private double latitude;
+	//private double longitude;
 	private double facing;
 	private double destLat = 43.036969;
 	private double destLon = -87.929579;
 	private String lastCommand;
 	private boolean autoMove = false;
-	private boolean stop = false;
+	private boolean manMove = false;
 	
 	public String getIpAddr() {
 		//Get Wi-Fi information
@@ -203,11 +203,12 @@ public class Server extends Activity implements LocationListener, SensorEventLis
 				dPack.setData(msg.getBytes());
 				send = true;
 				//set class message to stop auto-movement to waypoint
-				autoMove = false;
+				manMove = true;
 			}
 			else if(msg.startsWith("lat")) {
-				//set class constant to stop moving while message is being parsed
+				//set class variables to stop moving while message is being parsed
 				autoMove = false;
+				manMove = false;
 				//parse message, set parameters based on contents
 				//lat/long string format = "lat%flon%f"
 				String dString = msg.substring(3, msg.lastIndexOf('l'));
@@ -261,8 +262,8 @@ public class Server extends Activity implements LocationListener, SensorEventLis
 	public void onLocationChanged(Location location) {
 		double lat = (location.getLatitude());
 		double lng = (location.getLongitude());
-		latitude = lat;
-		longitude = lng;
+		//latitude = lat;
+		//longitude = lng;
 		latitudeField.setText(String.valueOf(lat));
 		longitudeField.setText(String.valueOf(lng));
 		double[] bearing = {0, 0};
@@ -270,9 +271,35 @@ public class Server extends Activity implements LocationListener, SensorEventLis
 		toDestBField.setText(String.valueOf(bearing[0]));
 		toDestDField.setText(String.valueOf(bearing[1]));
 		
-		//send control messages;
-		if(autoMove) {
-			
+		//send control messages
+		boolean send = false;
+		byte[] data = new byte[1024];
+		DatagramPacket dPack = new DatagramPacket(data,1024);
+		
+		if(manMove) {
+			//do nothing, gui is in control
+			System.out.println("manual movement");
+			text.setText(text.getText().toString() + "manual movement\n");
+		}
+		else if (autoMove) {
+			//movement algorithm for moving to waypoint
+			System.out.println("doing automove");
+			text.setText(text.getText().toString() + "doing automove\n");
+		}
+		else {
+			//send stop messages
+			dPack.setData(new String("stop").getBytes());
+			send = true;
+			//System.out.println("stopping");
+		}
+		
+		if(send){
+			try {
+				outSocket.send(dPack);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 
