@@ -33,7 +33,7 @@ public final class R {
         public static final int TextView07=0x7f080008;
         public static final int TextView08=0x7f080009;
         public static final int action_settings=0x7f08000b;
-        public static final int scrollView1=0x7f080000;
+        public static final int scrollViewMessages=0x7f080000;
         public static final int text2=0x7f080001;
         public static final int tvFacing=0x7f08000a;
     }
