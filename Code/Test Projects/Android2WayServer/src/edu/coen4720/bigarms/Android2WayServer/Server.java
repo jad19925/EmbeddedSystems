@@ -12,7 +12,6 @@
  */
 package edu.coen4720.bigarms.Android2WayServer;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -60,6 +59,7 @@ public class Server extends Activity implements LocationListener, SensorEventLis
 	private ScrollView messageScroll;
 	private LocationManager locationManager;
 	private String provider;
+	private final String networkProvider = locationManager.NETWORK_PROVIDER;
 	private SensorManager mSensorManager;
 	private float[] accValues = null;
 	private float[] magValues = null;
@@ -117,6 +117,7 @@ public class Server extends Activity implements LocationListener, SensorEventLis
 	    // Define the criteria how to select the location provider -> use default
 	    Criteria criteria = new Criteria();
 	    provider = locationManager.getBestProvider(criteria, false);
+	    boolean test = locationManager.isProviderEnabled(networkProvider);
 	    Location location = locationManager.getLastKnownLocation(provider);
 	    
 	    // TextView that will tell the user what degree is he heading
@@ -247,6 +248,7 @@ public class Server extends Activity implements LocationListener, SensorEventLis
 	protected void onResume() {
 		super.onResume();
 	    locationManager.requestLocationUpdates(provider, 1, 1, this);
+	    locationManager.requestLocationUpdates(networkProvider, 0, 0, this);
 	    // for the system's orientation sensor registered listeners
 	    mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
 	  				SensorManager.SENSOR_DELAY_NORMAL);
