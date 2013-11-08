@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -57,17 +58,20 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class TabletMainActivity extends Activity implements LocationListener, SensorEventListener, 
-						SpeedPickerFragment.mySpeedChangeListener, LatLonPickerFragment.WPSelectListener, WayPointAdderFragment.WPAdderListener  {
+						SpeedPickerFragment.mySpeedChangeListener, LatLonPickerFragment.WPSelectListener, 
+						WayPointAdderFragment.WPAdderListener, ManualWayPointFragment.WPManualListener, OnMapLongClickListener  {
 	//network class values
 	private DatagramSocket outSocket;
 	Handler updateConversationHandler;
@@ -99,6 +103,7 @@ public class TabletMainActivity extends Activity implements LocationListener, Se
 	private  double destLon = -87.929579;
 	
 	public String myLocation = "lat0.000000lon-0.000000";  //default value when no location info is available.
+	public String mapPoint = "lat0.0000lon-0.00000"; //default value; a position on the map, that will be updated in onMapLongClick 
 	
 	public int currentSpeed = 15; //default speed 
 	
@@ -166,8 +171,8 @@ public class TabletMainActivity extends Activity implements LocationListener, Se
 	      System.out.println("Provider " + provider + " has been selected.");
 	      onLocationChanged(location);
 	    } else {
-	      latitudeField.setText("Location not available");
-	      longitudeField.setText("Location not available");
+	      latitudeField.setText("Not available");
+	      longitudeField.setText("Not available");
 	    }
 	    
 	    //initialize the WayPoint list
@@ -184,7 +189,7 @@ public class TabletMainActivity extends Activity implements LocationListener, Se
 	    LatLng initialmapcoords = new LatLng (43.037835,-87.930859);  //Olin southside
 	    CameraPosition cp = new CameraPosition (initialmapcoords, 16.5f, 0.0f, 0.0f); //zoom, tilt, bearing TODO: proper floats
 	    GoogleMapOptions options = new GoogleMapOptions();
-	    options.mapType(GoogleMap.MAP_TYPE_NORMAL);
+	    options.mapType(GoogleMap.MAP_TYPE_HYBRID);
 	    options.camera(cp);  //sets initial camera position
 	   	    
 	    //add a map to a portion of the Activity screen:
@@ -226,13 +231,19 @@ public class TabletMainActivity extends Activity implements LocationListener, Se
        if (ConnectionResult.SUCCESS == resultCode) {
 	    myMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.Map_Layout)).getMap();
 	  
+	    
+	    //add markers to map
         destMarker =  myMap.addMarker(new MarkerOptions()
         .position(new LatLng (destLat, destLon)).title("Destination")); 
         
         tabletMarker = myMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("My Location").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
 	
         phoneMarker =  myMap.addMarker(new MarkerOptions().position(new LatLng(destLat, destLon)).title("Phone").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-        }
+        
+       //change other map configurations
+      myMap.setOnMapLongClickListener(this);
+               
+       }
        else {
    	    //initialize markers to prevent crashes
     	destMarker = new Marker (null);
@@ -522,12 +533,12 @@ public class TabletMainActivity extends Activity implements LocationListener, Se
 	 */
 			public void showWayPointAdderDialog(View v) {
 			    DialogFragment newFragment = new WayPointAdderFragment();
-			    newFragment.show(getFragmentManager(), "AddNewWP");  //shows the speed changing dialog box; quotes is unique name
+			    newFragment.show(getFragmentManager(), "AddNewWP");  //shows dialog box; quotes is unique name
 			}
 			
 			
 		    /**Responds to positive click in the dialog fragment
-		     * 
+		     * For creating a new WayPoint at the Current Location
 		     * @param dialog
 		     */
 			@Override
@@ -545,6 +556,93 @@ public class TabletMainActivity extends Activity implements LocationListener, Se
 				// do nothing on cancel
 				
 			}
+			
+						
+			
+	///////Methods for Adding WP manually.
+			/**
+			 * displays a new dialog for manual
+			 * called by GUI
+			 * @param v
+			 */
+			public void showWayPointManualAdderDialog(View v) {
+			    DialogFragment newFragment = new ManualWayPointFragment();
+			    newFragment.show(getFragmentManager(), "AddNewWPManually");  //shows the speed changing dialog box; quotes is unique name
+			}
+			
+			
+	      
+			/**Responds to positive click in the dialog fragment
+			 * for manually typing in latitude longitude values for a new way point.
+			 * Adds the new location to the waypoint list.
+			 */
+	      @Override
+	      public void onWPManualPositiveClick(DialogFragment dialog) {
+	
+	    	  double latv; //= myFragment.latv;
+	    	  double lonv; //= myFragment.lonv;
+	    	  
+          	//get values from the EditText boxes
+	    	  Dialog myDialog = dialog.getDialog();
+          	EditText latText = (EditText) myDialog.findViewById(R.id.lat_value);   //findViewById is a method for the Activity class
+          	String latStr = latText.getText().toString();
+          	EditText lonText = (EditText) myDialog.findViewById(R.id.lon_value);
+          	String lonStr = lonText.getText().toString();
+          
+          	
+          	//check that the input values are numerical, and can be parsed without error.
+          	try {
+          		latv = Double.parseDouble(latStr);
+          	   
+          	}
+          	catch (NumberFormatException e){
+          		latv = 0; //set to something that won't crash the app as a temporary stop gap measure
+          		e.printStackTrace();
+          		
+          	}
+          	
+          	try{
+        	lonv = Double.parseDouble(lonStr);
+          	}
+          	catch (NumberFormatException e){
+          		lonv = 0; //set to something that won't crash the app as a temporary stop gap measure
+          		e.printStackTrace();
+          	}
+            
+	    	  String coords = parseLocation(latv, lonv);  //get the doubles formatted correctly.
+				//add the current coords to the waypoint list:
+				waypointList.add(coords);
+	    	  
+	      }
+	      
+	      
+	      @Override
+		   public void onWPManualNegativeClick(DialogFragment dialog){
+		        	//do nothing on cancel
+		        	
+		        }
+			
+			
+	      /**
+		     * Implements the interface onMapLongClickListener.
+		     * When user "long presses" on the map do this.  
+		     */
+		    public void onMapLongClick (LatLng pnt){
+		    	//update the mapLocation string to the value of the clicked point on the map.
+		    	mapPoint = parseLocation (pnt.latitude, pnt.longitude);
+		    	
+		    	//show the fragment dialog box
+			    DialogFragment newFragment = new MapWayPointAdderFragment();
+			    newFragment.show(getFragmentManager(), "AddNewWPfromMap");  //shows the speed changing dialog box; quotes is unique name
+			
+		    	
+		    	//TODO
+		    	
+		    	
+		    } //end method onMapLongClick
+		    
+		
+	      
 	      
 	      
 	      
@@ -578,8 +676,6 @@ public class TabletMainActivity extends Activity implements LocationListener, Se
 	    
 	    
 
-	    
-	
 
 //////////////////////// Nested Classes //////////////////////
 	

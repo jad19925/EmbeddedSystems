@@ -25,9 +25,11 @@
     <color name="color_lightlavender">#CCCCFF</color>
     <string name="Unknown">Unknown</string>
     <string name="string_chooseWayPoint">Choose Way Point</string>
-    <string name="string_newWayPoint">Create New Way Point</string>
-    <string name="string_comehomeWayPoint">Come Home</string>
+    <string name="string_newWayPoint">Create New Way Point Here</string>
+    <string name="string_manualNewWayPoint">Create New Way Point Manually</string><string name="string_comehomeWayPoint">Come Home</string>
     <string name="dialog_select_waypoint">Go To This WP</string><string name="dialog_add_waypoint">Yes, Add New Way Point</string><string name="dialog_wp_pick_message">Choose a WayPoint that the robot should go to.</string>
+    <string name="msg_manualNewWP_instr">Instructions: Please enter the numerical Latitude and Longitude values for the new Way Point.</string>
+    
     
     
     
