@@ -27,8 +27,8 @@ public class WayPointAdderFragment extends DialogFragment{
 
 	}   //end interface WPAdderListener
 	
-	protected String myLoc; //my Location string, in the format latxx.xxxxlonxx.xxxx
-	protected WPAdderListener myListener;  //listener object to pass back results
+	String myLoc; //my Location string, in the format latxx.xxxxlonxx.xxxx
+	WPAdderListener myListener;  //listener object to pass back results
 	
 	
 	// Override the Fragment.onAttach() method to instantiate the NoticeDialogListener
