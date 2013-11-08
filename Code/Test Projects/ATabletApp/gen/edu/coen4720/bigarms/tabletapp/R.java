@@ -196,12 +196,12 @@ containing a value of this type.
         public static final int ic_plusone_tall_off_client=0x7f02001c;
     }
     public static final class id {
-        public static final int Controller_Layout=0x7f050017;
-        public static final int LLBottomHalf=0x7f050016;
+        public static final int Controller_Layout=0x7f050016;
+        public static final int LLBottomHalf=0x7f050015;
         public static final int LLTopHalf=0x7f050005;
         public static final int LocationInfo_Layout=0x7f050006;
         public static final int LocationRLayout=0x7f050007;
-        public static final int Map_Layout=0x7f050018;
+        public static final int Map_Layout=0x7f050017;
         public static final int ScrollingPhoneMessages_Layout=0x7f05000f;
         public static final int TextViewDistanceString=0x7f05000c;
         public static final int TextViewDistanceValue=0x7f05000d;
@@ -210,35 +210,28 @@ containing a value of this type.
         public static final int TextViewLongitudeString=0x7f05000a;
         public static final int TextViewLongitudeValue=0x7f05000b;
         public static final int WayPoint_Layout=0x7f050011;
-        public static final int action_settings=0x7f050026;
-        public static final int backward=0x7f05001d;
-        public static final int button1=0x7f050020;
+        public static final int action_settings=0x7f050020;
+        public static final int backward=0x7f05001c;
+        public static final int button1=0x7f05001f;
         public static final int chooseWayPoint=0x7f050012;
-        public static final int comehomeWayPoint=0x7f050015;
-        public static final int exit=0x7f05001f;
-        public static final int forward=0x7f05001a;
+        public static final int comehomeWayPoint=0x7f050014;
+        public static final int exit=0x7f05001e;
+        public static final int forward=0x7f050019;
         public static final int hybrid=0x7f050004;
-        public static final int lat_msg=0x7f050022;
-        public static final int lat_value=0x7f050023;
-        public static final int left=0x7f05001c;
-        public static final int lon_msg=0x7f050024;
-        public static final int lon_value=0x7f050025;
-        public static final int manualNewWayPoint=0x7f050014;
-        public static final int manual_latlon_fragment=0x7f050021;
+        public static final int left=0x7f05001b;
         public static final int newWayPoint=0x7f050013;
         public static final int none=0x7f050000;
         public static final int normal=0x7f050001;
-        public static final int right=0x7f05001e;
+        public static final int right=0x7f05001d;
         public static final int satellite=0x7f050002;
-        public static final int speedbutton=0x7f05001b;
-        public static final int stop=0x7f050019;
+        public static final int speedbutton=0x7f05001a;
+        public static final int stop=0x7f050018;
         public static final int terrain=0x7f050003;
         public static final int text2=0x7f050010;
         public static final int tvFacing=0x7f05000e;
     }
     public static final class layout {
         public static final int activity_tablet_main=0x7f030000;
-        public static final int frag_manual_latlon=0x7f030001;
     }
     public static final class menu {
         public static final int tablet_main=0x7f090000;
@@ -337,21 +330,19 @@ containing a value of this type.
         /**  Long form sign-in button text [CHAR LIMIT=30] 
          */
         public static final int common_signin_button_text_long=0x7f060012;
-        public static final int dialog_add_waypoint=0x7f06002d;
+        public static final int dialog_add_waypoint=0x7f06002c;
         public static final int dialog_cancel_change=0x7f060024;
         public static final int dialog_change_speed=0x7f060023;
-        public static final int dialog_select_waypoint=0x7f06002c;
+        public static final int dialog_select_waypoint=0x7f06002b;
         public static final int dialog_speed_pick_message=0x7f060022;
-        public static final int dialog_wp_pick_message=0x7f06002e;
+        public static final int dialog_wp_pick_message=0x7f06002d;
         public static final int hello_world=0x7f06001b;
-        public static final int msg_manualNewWP_instr=0x7f06002f;
         public static final int string_backward=0x7f06001d;
         public static final int string_chooseWayPoint=0x7f060028;
-        public static final int string_comehomeWayPoint=0x7f06002b;
+        public static final int string_comehomeWayPoint=0x7f06002a;
         public static final int string_exit=0x7f060026;
         public static final int string_forward=0x7f06001c;
         public static final int string_left=0x7f06001e;
-        public static final int string_manualNewWayPoint=0x7f06002a;
         public static final int string_newWayPoint=0x7f060029;
         public static final int string_right=0x7f06001f;
         public static final int string_speed=0x7f060025;
