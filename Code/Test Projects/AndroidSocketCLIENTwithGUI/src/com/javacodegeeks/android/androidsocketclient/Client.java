@@ -52,9 +52,24 @@ public class Client extends Activity implements SpeedPickerFragment.mySpeedChang
 			
 			//get String from GUI:
 			Button pressedButton = (Button) findViewById(view.getId());
-			String str = pressedButton.getText().toString();
+			String btnStr = pressedButton.getText().toString();
+			String str = "";
 			
-			
+			if(btnStr.equals(R.string.string_forward)){
+				str = "MoveR100L100";
+			}
+			else if(btnStr.equals(R.string.string_backward)){
+				str = "MoveR-100L-100";
+			}
+			else if(btnStr.equals(R.string.string_left)){
+				str = "MoveR100L-100";
+			}
+			else if(btnStr.equals(R.string.string_right)){
+				str = "MoveR-100L100";
+			}
+			else {
+				str = btnStr;
+			}
 			
 			if(!UDP) {
 				PrintWriter out = new PrintWriter(new BufferedWriter(
@@ -123,7 +138,7 @@ public class Client extends Activity implements SpeedPickerFragment.mySpeedChang
 		
 		//send UDP:
 				
-try {
+		try {
 			
 			if(!UDP) {
 				PrintWriter out = new PrintWriter(new BufferedWriter(
