@@ -222,7 +222,7 @@ public class Server extends Activity implements LocationListener, SensorEventLis
 			DatagramPacket dPack = new DatagramPacket(data,1024);
 			//do processing here. currently just forwards the command to the vex, but we can do calls to gps code later
 			if(msg.startsWith("forward") || msg.startsWith("backward") || msg.startsWith("left") || msg.startsWith("right") ||
-					msg.startsWith("stop") || msg.startsWith("speed") || msg.startsWith("exit")){
+					msg.startsWith("stop") || msg.startsWith("speed") || msg.startsWith("exit") || msg.startsWith("Move")){
 				dPack.setData(msg.getBytes());
 				send = true;
 				//set class message to stop auto-movement to waypoint
@@ -348,7 +348,7 @@ public class Server extends Activity implements LocationListener, SensorEventLis
 			if(facing < 0) {
 				facing = facing + 360.0;
 			}
-			tvFacing.setText("Facing (Degrees): " + Double.toString(facing) + "û");
+			tvFacing.setText("Facing (Degrees): " + Double.toString(facing) + "Deg");
 		}
 		
 		//send control messages
