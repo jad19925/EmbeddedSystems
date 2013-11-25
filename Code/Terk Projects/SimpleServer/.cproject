@@ -5,40 +5,36 @@
 <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.exe.debug.628549869" moduleId="org.eclipse.cdt.core.settings" name="Debug">
 <externalSettings/>
 <extensions>
-<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 <extension id="org.eclipse.cdt.core.MakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 <extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 <extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 </extensions>
 </storageModule>
 <storageModule moduleId="cdtBuildSystem" version="4.0.0">
 <configuration artifactName="SimpleServer" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.exe.debug.628549869" name="Debug" parent="cdt.managedbuild.config.gnu.exe.debug">
 <folderInfo id="cdt.managedbuild.config.gnu.exe.debug.628549869." name="/" resourcePath="">
-<toolChain id="cdt.managedbuild.toolchain.vex.gnu.base.348324052" name="TerkOS GCC (Linux)" superClass="cdt.managedbuild.toolchain.vex.gnu.base">
-<targetPlatform archList="ARM" binaryParser="org.eclipse.cdt.core.ELF" id="cdt.managedbuild.target.vex.gnu.platform.base.1257776253" name="TerkOS Debug Platform" osList="linux" superClass="cdt.managedbuild.target.vex.gnu.platform.base"/>
-<builder buildPath="${workspace_loc:/SimpleServer/Debug}" id="org.terk.tools.builder.941559270" name="TerkOS Builder.Debug" superClass="org.terk.tools.builder"/>
-<tool id="org.terk.tools.archiver.1664104182" name="TerkOS Archiver" superClass="org.terk.tools.archiver"/>
-<tool id="org.terk.tools.cpp.compiler.1793080307" name="TerkOS C++ Compiler" superClass="org.terk.tools.cpp.compiler">
-<option id="gnu.cpp.compiler.option.optimization.level.295328442" superClass="gnu.cpp.compiler.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
-<option id="gnu.cpp.compiler.option.debugging.level.892072275" superClass="gnu.cpp.compiler.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
-<inputType id="org.terk.tools.cpp.compiler.input.1972549176" superClass="org.terk.tools.cpp.compiler.input"/>
+<toolChain id="org.terk.tools.toolchain.cygwin.740040338" name="TerkOS Cygwin GCC (Windows)" superClass="org.terk.tools.toolchain.cygwin">
+<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="org.terk.platform.dbg.cygwin.2019251122" name="TerkOS Debug Platform" osList="win32" superClass="org.terk.platform.dbg.cygwin"/>
+<builder buildPath="${workspace_loc:/SimpleServerSonar/Debug}" id="org.tools.builder.cygwin.159305431" name="TerkOS Builder (Cygwin Make) .Debug" superClass="org.tools.builder.cygwin"/>
+<tool id="org.terk.tools.assembler.cygwin.1983589218" name="TerkOS Assembler (Cygwin)" superClass="org.terk.tools.assembler.cygwin"/>
+<tool id="org.terk.tools.archiver.cygwin.601174988" name="TerkOS Archiver (Cygwin)" superClass="org.terk.tools.archiver.cygwin"/>
+<tool id="org.terk.tools.cpp.compiler.cygwin.1378475762" name="TerkOS C++ Compiler (Cygwin)" superClass="org.terk.tools.cpp.compiler.cygwin">
+<option id="gnu.cpp.compiler.option.optimization.level.1200319196" superClass="gnu.cpp.compiler.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
+<option id="gnu.cpp.compiler.option.debugging.level.1674721079" superClass="gnu.cpp.compiler.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
+<inputType id="org.terk.tools.cpp.compiler.cygwin.input.598945725" superClass="org.terk.tools.cpp.compiler.cygwin.input"/>
 </tool>
-<tool id="org.terk.tools.c.compiler.189403577" name="TerkOS C Compiler" superClass="org.terk.tools.c.compiler">
-<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.option.optimization.level.1929721124" superClass="gnu.c.compiler.option.optimization.level" valueType="enumerated"/>
-<option id="gnu.c.compiler.option.debugging.level.1454560777" superClass="gnu.c.compiler.option.debugging.level" value="gnu.c.debugging.level.max" valueType="enumerated"/>
-<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.416309353" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
-<inputType id="org.terk.tools.c.compiler.input.913090392" superClass="org.terk.tools.c.compiler.input"/>
+<tool id="org.terk.tools.c.compiler.cygwin.1186131525" name="TerkOS C Compiler (Cygwin)" superClass="org.terk.tools.c.compiler.cygwin">
+<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.option.optimization.level.1264911521" superClass="gnu.c.compiler.option.optimization.level" valueType="enumerated"/>
+<option id="gnu.c.compiler.option.debugging.level.1725208639" superClass="gnu.c.compiler.option.debugging.level" value="gnu.c.debugging.level.max" valueType="enumerated"/>
+<inputType id="org.terk.tools.c.compiler.cygwin.input.1151900706" superClass="org.terk.tools.c.compiler.cygwin.input"/>
 </tool>
-<tool id="org.terk.tools.c.linker.513206735" name="TerkOS C Linker" superClass="org.terk.tools.c.linker"/>
-<tool id="org.terk.tools.cpp.linker.249895883" name="TerkOS C++ Linker" superClass="org.terk.tools.cpp.linker">
-<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1434563554" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
+<tool id="org.terk.tools.c.linker.cygwin.1268339906" name="TerkOS C Linker (Cygwin)" superClass="org.terk.tools.c.linker.cygwin"/>
+<tool id="org.terk.tools.cpp.linker.cygwin.410829133" name="TerkOS C++ Linker (Cygwin)" superClass="org.terk.tools.cpp.linker.cygwin">
+<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.387875412" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 <additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 <additionalInput kind="additionalinput" paths="$(LIBS)"/>
 </inputType>
-</tool>
-<tool id="org.terk.tools.assembler.264401881" name="TerkOS Assembler" superClass="org.terk.tools.assembler">
-<inputType id="cdt.managedbuild.tool.gnu.assembler.input.92684327" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 </tool>
 </toolChain>
 </folderInfo>
@@ -580,44 +576,43 @@
 </scannerConfigBuildInfo>
 </storageModule>
 <storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+<storageModule moduleId="org.eclipse.cdt.core.language.mapping"/>
+<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cconfiguration>
 <cconfiguration id="cdt.managedbuild.config.gnu.exe.release.652907858">
 <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.exe.release.652907858" moduleId="org.eclipse.cdt.core.settings" name="Release">
 <externalSettings/>
 <extensions>
-<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 <extension id="org.eclipse.cdt.core.MakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 <extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 <extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 </extensions>
 </storageModule>
 <storageModule moduleId="cdtBuildSystem" version="4.0.0">
 <configuration artifactName="SimpleServer" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.exe.release.652907858" name="Release" parent="cdt.managedbuild.config.gnu.exe.release">
 <folderInfo id="cdt.managedbuild.config.gnu.exe.release.652907858." name="/" resourcePath="">
-<toolChain id="cdt.managedbuild.toolchain.gnu.exe.release.555040403" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.exe.release">
-<targetPlatform id="cdt.managedbuild.target.gnu.platform.exe.release.1030650231" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.exe.release"/>
-<builder buildPath="${workspace_loc:/SimpleServer/Release}" id="cdt.managedbuild.target.gnu.builder.exe.release.1710261896" managedBuildOn="true" name="Gnu Make Builder.Release" superClass="cdt.managedbuild.target.gnu.builder.exe.release"/>
-<tool id="cdt.managedbuild.tool.gnu.archiver.base.396192432" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
-<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1153443418" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release">
-<option id="gnu.cpp.compiler.exe.release.option.optimization.level.967071898" superClass="gnu.cpp.compiler.exe.release.option.optimization.level" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
-<option id="gnu.cpp.compiler.exe.release.option.debugging.level.1247277418" superClass="gnu.cpp.compiler.exe.release.option.debugging.level" value="gnu.cpp.compiler.debugging.level.none" valueType="enumerated"/>
-<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1126856831" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+<toolChain id="org.terk.tools.toolchain.cygwin.1355772361" name="TerkOS Cygwin GCC (Windows)" superClass="org.terk.tools.toolchain.cygwin">
+<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="org.terk.platform.dbg.cygwin.1427400895" name="TerkOS Debug Platform" osList="win32" superClass="org.terk.platform.dbg.cygwin"/>
+<builder buildPath="${workspace_loc:/SimpleServerSonar/Release}" id="org.tools.builder.cygwin.429853527" name="TerkOS Builder (Cygwin Make) .Release" superClass="org.tools.builder.cygwin"/>
+<tool id="org.terk.tools.assembler.cygwin.170790780" name="TerkOS Assembler (Cygwin)" superClass="org.terk.tools.assembler.cygwin"/>
+<tool id="org.terk.tools.archiver.cygwin.756462512" name="TerkOS Archiver (Cygwin)" superClass="org.terk.tools.archiver.cygwin"/>
+<tool id="org.terk.tools.cpp.compiler.cygwin.1456641726" name="TerkOS C++ Compiler (Cygwin)" superClass="org.terk.tools.cpp.compiler.cygwin">
+<option id="gnu.cpp.compiler.option.optimization.level.912911230" superClass="gnu.cpp.compiler.option.optimization.level" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
+<option id="gnu.cpp.compiler.option.debugging.level.2117235102" superClass="gnu.cpp.compiler.option.debugging.level" value="gnu.cpp.compiler.debugging.level.none" valueType="enumerated"/>
+<inputType id="org.terk.tools.cpp.compiler.cygwin.input.485683320" superClass="org.terk.tools.cpp.compiler.cygwin.input"/>
 </tool>
-<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.release.1497016587" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.release">
-<option defaultValue="gnu.c.optimization.level.most" id="gnu.c.compiler.exe.release.option.optimization.level.1204357199" superClass="gnu.c.compiler.exe.release.option.optimization.level" valueType="enumerated"/>
-<option id="gnu.c.compiler.exe.release.option.debugging.level.936805593" superClass="gnu.c.compiler.exe.release.option.debugging.level" value="gnu.c.debugging.level.none" valueType="enumerated"/>
-<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.2067467436" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+<tool id="org.terk.tools.c.compiler.cygwin.1850955143" name="TerkOS C Compiler (Cygwin)" superClass="org.terk.tools.c.compiler.cygwin">
+<option defaultValue="gnu.c.optimization.level.most" id="gnu.c.compiler.option.optimization.level.1902284096" superClass="gnu.c.compiler.option.optimization.level" valueType="enumerated"/>
+<option id="gnu.c.compiler.option.debugging.level.1405134160" superClass="gnu.c.compiler.option.debugging.level" value="gnu.c.debugging.level.none" valueType="enumerated"/>
+<inputType id="org.terk.tools.c.compiler.cygwin.input.1004612544" superClass="org.terk.tools.c.compiler.cygwin.input"/>
 </tool>
-<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.release.633518396" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.release"/>
-<tool id="cdt.managedbuild.tool.gnu.cpp.linker.exe.release.1351561939" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.release">
-<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1799261693" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
+<tool id="org.terk.tools.c.linker.cygwin.2014751689" name="TerkOS C Linker (Cygwin)" superClass="org.terk.tools.c.linker.cygwin"/>
+<tool id="org.terk.tools.cpp.linker.cygwin.984664881" name="TerkOS C++ Linker (Cygwin)" superClass="org.terk.tools.cpp.linker.cygwin">
+<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1205602210" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 <additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 <additionalInput kind="additionalinput" paths="$(LIBS)"/>
 </inputType>
-</tool>
-<tool id="cdt.managedbuild.tool.gnu.assembler.exe.release.683467308" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.release">
-<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1908547164" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 </tool>
 </toolChain>
 </folderInfo>
@@ -1159,6 +1154,8 @@
 </scannerConfigBuildInfo>
 </storageModule>
 <storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+<storageModule moduleId="org.eclipse.cdt.core.language.mapping"/>
+<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cconfiguration>
 </storageModule>
 <storageModule moduleId="cdtBuildSystem" version="4.0.0">

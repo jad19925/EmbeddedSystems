@@ -252,6 +252,24 @@ int main(int argc, char **argv)
 			break;
 		}
 
+		//parse new movement string
+		if(0 == strncmp("move",buffer,4))
+		{
+			int rightPercent = 0;
+			int leftPercent = 0;
+			int sscanfRet = sscanf(buffer, "%*5s %d %*1s %d", &rightPercent, &leftPercent);
+			if(2 == sscanfRet)
+			{
+				motors.drive(leftPercent, rightPercent, speed);
+				printf("leftPercent: %d, rightPercent: %d\n", leftPercent, rightPercent);
+			}
+			else
+			{
+				printf("Error: %s is not a valid command\n", buffer);
+				printf("leftPercent: %d, rightPercent: %d\n", leftPercent, rightPercent);
+			}
+		}
+
 		printf("%s\n",buffer);
 
 		//zero out buffer

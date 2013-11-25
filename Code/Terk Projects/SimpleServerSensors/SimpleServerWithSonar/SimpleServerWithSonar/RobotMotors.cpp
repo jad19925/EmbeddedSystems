@@ -5,6 +5,7 @@
  *      Author: jacob
  */
 
+#define ABS(x) (x < 0 ? -x : x)
 #include "RobotMotors.h"
 
 RobotMotors::RobotMotors() {
@@ -38,6 +39,14 @@ double RobotMotors::getMultiplierLeft()
 double RobotMotors::getMultiplierRight()
 {
 	return mRight;
+}
+
+void RobotMotors::drive(int leftSpeed, int rightSpeed, int speed)
+{
+	pmotor->MoveVelocity(LEFT_FRONT,(leftSpeed*speed*mLeft)/100,((ABS(leftSpeed)*speed*mLeft)/100)/2);
+	pmotor->MoveVelocity(RIGHT_FRONT,(-1*rightSpeed*speed*mRight)/100,((ABS(rightSpeed)*speed*mRight)/100)/2);
+	pmotor->MoveVelocity(LEFT_REAR,(leftSpeed*speed*mLeft)/100,((ABS(leftSpeed)*speed*mLeft)/100)/2);
+	pmotor->MoveVelocity(RIGHT_REAR,(-1*rightSpeed*speed*mRight)/100,((ABS(rightSpeed)*speed*mRight)/100)/2);
 }
 
 void RobotMotors::moveForward(int speed){
