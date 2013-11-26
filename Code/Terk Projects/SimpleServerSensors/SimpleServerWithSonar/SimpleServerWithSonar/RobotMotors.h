@@ -40,6 +40,8 @@ public:
 	void turnLeft(int speed);
 	//stops the robot
 	void stop();
+	//specify the amount of left and right movement as a percent, and a desired speed
+	void drive(int leftSpeed, int rightSpeed, int speed);
 
 private:
 	double mLeft;

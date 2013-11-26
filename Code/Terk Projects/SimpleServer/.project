@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>SimpleServer</name>
+	<name>SimpleServerSonar</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -27,11 +27,11 @@
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.buildCommand</key>
-					<value>/usr/local/terkos/arm/make/make</value>
+					<value>/cygwin/bin/make</value>
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.buildLocation</key>
-					<value>${workspace_loc:/SimpleServer/Debug}</value>
+					<value>${workspace_loc:/SimpleServerSonar/Debug}</value>
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.cleanBuildTarget</key>
