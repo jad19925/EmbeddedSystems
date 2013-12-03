@@ -1,5 +1,12 @@
 package com.example.tilttest;
 
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
+
 import com.example.tilttest.util.SystemUiHider;
 
 import android.annotation.TargetApi;
@@ -32,8 +39,16 @@ public class FullscreenActivity extends Activity implements SensorEventListener 
 	private static final boolean AUTO_HIDE = true;
 	private float[] accValues = null;
 	private float[] magValues = null;
-	private TextView textView = null;
+	private TextView textView1 = null;
+	private TextView textView2 = null;
 	private float[] gravity = new float[3];
+	private int counter = 0;
+	private final int counterLimit = 10;
+	
+	//wifi code declarations
+	private DatagramSocket dSocket;
+	private static final int SERVERPORT = 9923;//8080;//Open Port on Android Devices
+	private static final String SERVER_IP = "192.168.1.127";
 
 	@Override
 	protected void onPause()
@@ -79,14 +94,15 @@ public class FullscreenActivity extends Activity implements SensorEventListener 
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_fullscreen);
-
-		final View controlsView = findViewById(R.id.fullscreen_content_controls);
+		
 		final View contentView = findViewById(R.id.fullscreen_content);
+		new Thread(new ClientThread()).start();
 
 		mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 		mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 		
-		textView = (TextView)findViewById(R.id.textView1);
+		textView1 = (TextView)findViewById(R.id.textView1);
+		textView2 = (TextView)findViewById(R.id.textView2);
 
 		// Set up an instance of SystemUiHider to control the system UI for
 		// this activity.
@@ -95,7 +111,6 @@ public class FullscreenActivity extends Activity implements SensorEventListener 
 		mSystemUiHider.setup();
 		mSystemUiHider.setOnVisibilityChangeListener(new SystemUiHider.OnVisibilityChangeListener() {
 					// Cached values.
-					int mControlsHeight;
 					int mShortAnimTime;
 
 					@Override
@@ -106,23 +121,10 @@ public class FullscreenActivity extends Activity implements SensorEventListener 
 							// (Honeycomb MR2 and later), use it to animate the
 							// in-layout UI controls at the bottom of the
 							// screen.
-							if (mControlsHeight == 0) {
-								mControlsHeight = controlsView.getHeight();
-							}
 							if (mShortAnimTime == 0) {
 								mShortAnimTime = getResources().getInteger(
 										android.R.integer.config_shortAnimTime);
 							}
-							controlsView
-									.animate()
-									.translationY(visible ? 0 : mControlsHeight)
-									.setDuration(mShortAnimTime);
-						} else {
-							// If the ViewPropertyAnimator APIs aren't
-							// available, simply show or hide the in-layout UI
-							// controls.
-							controlsView.setVisibility(visible ? View.VISIBLE
-									: View.GONE);
 						}
 
 						if (visible && AUTO_HIDE) {
@@ -143,12 +145,6 @@ public class FullscreenActivity extends Activity implements SensorEventListener 
 				}
 			}
 		});
-
-		// Upon interacting with UI controls, delay any scheduled hide()
-		// operations to prevent the jarring behavior of controls going away
-		// while interacting with the UI.
-		findViewById(R.id.dummy_button).setOnTouchListener(
-				mDelayHideTouchListener);
 	}
 
 	@Override
@@ -217,34 +213,86 @@ public class FullscreenActivity extends Activity implements SensorEventListener 
 			y = gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
 			z = gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2];
 			
-			textView.setText("x: " + gravity[0] + ", y: " + gravity[1] + ", z: " + gravity[2]);
+			textView1.setText("x: " + gravity[0] + ", y: " + gravity[1] + ", z: " + gravity[2]);
 			
 			//calibrate for flatness on a moving earth
 			x -= 0.065;
 			y -= 0.133;
 			
 			//tilted all the way to the right
-			if(Math.abs(x/y) > 6 && x > 0)
+			if(Math.abs(x/y) > 40 && x > 0)
 			{
 				percentRight = 100;
 				percentLeft = -100;
 			}
 			//tilted all the way left
-			else if(Math.abs(x/y) > 6 && x < 0)
+			else if(Math.abs(x/y) > 40 && x < 0)
 			{
 				percentRight = -100;
 				percentLeft = 100;
 			}
 			//moving zero
-			else if(x < 1.5 && y < 1.5)
+			else if(Math.abs(x) < 1 && Math.abs(y) < 1)
 			{
 				percentRight = 0;
 				percentLeft = 0;
 			}
 			else
 			{
-				percentRight = (int)maxAbs((x * 100 / 6), 100);
-				percentLeft = (int)maxAbs((-x * 100 / 6), 100);
+				//percentRight = (int)maxAbs((x * 100 / 6), 100);
+				//percentLeft = (int)maxAbs((-x * 100 / 6), 100);
+				if(Math.abs(y) > Math.abs(x)) {
+					float vF = (-y*100)/6;
+					if(vF >= 0) {
+						vF = Math.min(vF,100);
+					}
+					else{
+						vF = Math.max(vF, -100);
+					}
+					if(x > 0) {
+						percentRight = (int)vF;
+						percentLeft = (int)((Math.abs(vF) - Math.min((x*100)/6, 100))*Math.signum(vF));
+					}
+					else {
+						percentRight = (int)((Math.abs(vF) + Math.max((x*100)/6, -100))*Math.signum(vF));
+						percentLeft = (int)vF;
+					}
+				}
+				else {
+					float speed = Math.max(Math.abs(x*100)/6, 100);
+					int dir = (int)Math.signum(-y);
+					if(x > 0) {
+						percentRight = (int)speed*dir;
+						percentLeft = (int)(Math.abs(speed) - Math.min((x*100)/6, 100))*dir;
+					}
+					else {
+						percentRight = (int)(Math.abs(speed) + Math.max((x*100)/6, -100))*dir;
+						percentLeft = (int)speed*dir;
+					}
+				}
+			}
+			textView2.setText("Percent Left = " + percentLeft + ", Percent Right = " + percentRight);
+			if(counter >= counterLimit){
+				String str = "moveR" + percentRight + "L" + percentLeft;
+				byte[] data = new byte[1024];
+				DatagramPacket dPack = new DatagramPacket(data,1024);
+				dPack.setData(str.getBytes());
+				try {
+					if(dSocket != null){
+						dSocket.send(dPack);
+						//System.out.println("Not Null");
+					}
+					else{
+						//System.out.println("Null");
+					}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				counter = 0;
+			}
+			else {
+				counter++;
 			}
 		}
 		else if(event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD)
@@ -290,5 +338,24 @@ public class FullscreenActivity extends Activity implements SensorEventListener 
 		{
 			return Math.min(f1, f2);
 		}
+	}
+	
+	class ClientThread implements Runnable {
+
+		@Override
+		public void run() {
+
+			try {
+				dSocket = new DatagramSocket();
+				dSocket.connect(InetAddress.getByName(SERVER_IP), SERVERPORT);
+
+			} catch (UnknownHostException e1) {
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+
+		}
+
 	}
 }
