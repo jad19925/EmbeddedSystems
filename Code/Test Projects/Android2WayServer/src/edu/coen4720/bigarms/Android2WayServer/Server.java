@@ -67,13 +67,15 @@ public class Server extends Activity implements LocationListener, SensorEventLis
 	private float[] accValues = null;
 	private float[] magValues = null;
 	
-	//private double latitude;
-	//private double longitude;
+	private double latitude = 43.037826;
+	private double longitude = -87.930847;
 	private double facing;
 	private double destLat = 43.036969;
 	private double destLon = -87.929579;
 	private double destBearing = 0;
 	private double destDistance = 0;
+	private double prevBearing = 0;
+	private double prevDistance = 0;
 	private String lastCommand = "null";
 	private boolean autoMove = false;
 	private boolean manMove = false;
@@ -143,6 +145,10 @@ public class Server extends Activity implements LocationListener, SensorEventLis
 		private DatagramSocket receiveSocket;
 		
 		public CommunicationThread() {
+
+		}
+
+		public void run() {
 			try {
 				receiveSocket = new DatagramSocket(SERVERPORT);
 				text.setText(text.getText().toString()+"IP Address is: "+ getIpAddr() + "\n" + "Port Number: " + SERVERPORT + "\n");
@@ -150,9 +156,6 @@ public class Server extends Activity implements LocationListener, SensorEventLis
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
-
-		public void run() {
 			while (!Thread.currentThread().isInterrupted()) {
 
 				try {
@@ -222,11 +225,12 @@ public class Server extends Activity implements LocationListener, SensorEventLis
 			DatagramPacket dPack = new DatagramPacket(data,1024);
 			//do processing here. currently just forwards the command to the vex, but we can do calls to gps code later
 			if(msg.startsWith("forward") || msg.startsWith("backward") || msg.startsWith("left") || msg.startsWith("right") ||
-					msg.startsWith("stop") || msg.startsWith("speed") || msg.startsWith("exit") || msg.startsWith("Move")){
+					msg.startsWith("stop") || msg.startsWith("speed") || msg.startsWith("exit") || msg.startsWith("move")){
 				dPack.setData(msg.getBytes());
 				send = true;
 				//set class message to stop auto-movement to waypoint
 				manMove = true;
+				autoMove = false;
 			}
 			else if(msg.startsWith("lat")) {
 				//set class variables to stop moving while message is being parsed
@@ -241,7 +245,9 @@ public class Server extends Activity implements LocationListener, SensorEventLis
 				text.setText(text.getText().toString() + "New Waypoint: "+ Double.toString(destLat) + ", " +
 						Double.toString(destLon) + "\n");
 				//set class message to restart movement
+				new Thread(new NavigationThread()).start();
 				autoMove = true;
+				
 			}
 			else{
 				//do some other processing yet to be determined
@@ -256,6 +262,208 @@ public class Server extends Activity implements LocationListener, SensorEventLis
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+			}
+		}
+	}
+	
+	class NavigationThread implements Runnable {
+
+		double prevBearingDifference = 0;
+		@Override
+		public void run() {
+			int offset = 1750;//inside = 1700 outside = 1750
+			int divider = 22;//inside = 41, outside = 22
+			//stop
+			String msg;
+			byte[] data = new byte[1024];
+			DatagramPacket dPack = new DatagramPacket(data,1024);
+			msg = "stop";
+			dPack.setData(msg.getBytes());
+			try {
+				outSocket.send(dPack);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			//sleep 0.1 mSec
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			//calculate new bearing to destination (won't be calculated while not moving)
+			double[] bearing = {0, 0};
+			getBearingToDest(latitude, longitude, destLat, destLon, bearing);
+			destBearing = bearing[0];
+			destDistance = bearing[1];
+			
+			//guess turn towards destination based on previous bearing
+//			int bearingDiff = 0;
+			int leftDegrees = (int)(prevBearing - destBearing + 360) % 360;
+			if(leftDegrees < 180) {
+				//turn left
+//				msg = "moveR100L-100";
+//				dPack.setData(msg.getBytes());
+//				bearingDiff = leftDegrees;
+				turnDegrees(leftDegrees,true);
+			}
+			else {
+				//turn right
+//				msg = "moveR-100L100";
+//				dPack.setData(msg.getBytes());
+//				bearingDiff = 360 - leftDegrees;
+				turnDegrees((360-leftDegrees),false);
+			}
+//			try {
+//				outSocket.send(dPack);
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//			
+//			//set stop data
+//			msg = "stop";
+//			dPack.setData(msg.getBytes());
+//			//sleep x? seconds
+//			try {
+//				Thread.sleep(offset + (1000*bearingDiff)/divider);
+//			} catch (InterruptedException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//			//send stop
+//			try {
+//				outSocket.send(dPack);
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+			
+			final int counterLimit = 20;
+			int counter = 0;
+			int insideSpeed = 100;
+			//start moving toward the destination correcting as we go
+			//start moving forward before entering the loop
+			
+			//movement loop
+			//text.setText(text.getText().toString()+"Start Movement Loop\n");
+			while(autoMove && !Thread.currentThread().isInterrupted()) {
+				if(counter >= counterLimit) {
+					counter = 0;
+					if(prevDistance < destDistance) {
+						//going the wrong way
+						//turn 180 and go forward
+						turnDegrees(180,true);
+						try {
+							Thread.sleep(100);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						msg = "moveR100L100";
+						dPack.setData(msg.getBytes());
+						try {
+							outSocket.send(dPack);
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+					else {
+						if(prevBearing < destBearing) {
+							//current heading is left of where we need to go, adjust right
+							if(Math.abs(prevBearingDifference) < Math.abs(prevBearing - destBearing)) {
+								//getting closer
+								insideSpeed = insideSpeed + (100-insideSpeed)/2;
+							}
+							else {
+								//getting farther
+								insideSpeed = (9 * insideSpeed)/10;
+							}
+							msg = "moveR" + insideSpeed + "L100";
+							prevBearingDifference = prevBearing - destBearing;
+						}
+						else if(prevBearing > destBearing) {
+							//current heading is right of where we need to go, adjust left
+							if(Math.abs(prevBearingDifference) < Math.abs(prevBearing - destBearing)) {
+								//getting closer
+								insideSpeed = insideSpeed + (100-insideSpeed)/2;
+							}
+							else {
+								//getting farther
+								insideSpeed = (9 * insideSpeed)/10;
+							}
+							msg = "moveR100L" + insideSpeed;
+							prevBearingDifference = prevBearing - destBearing;
+						}
+						else {
+							//prev and destination bearing are the same, move straight
+							msg = "moveR100L100";
+							prevBearingDifference = prevBearing - destBearing;
+						}
+						dPack.setData(msg.getBytes());
+						try {
+							outSocket.send(dPack);
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+					prevBearing = destBearing;
+					prevDistance = destDistance;
+				}
+				else {
+					counter++;
+				}
+				//maybe do this assignment only when we actually are making move commands?
+//				prevBearing = destBearing;
+//				prevDistance = destDistance;
+			}
+		}
+		
+		public void turnDegrees(int degrees, boolean left) {
+			String msg;
+			byte[] data = new byte[1024];
+			DatagramPacket dPack = new DatagramPacket(data,1024);
+			final int offset = 1750;//inside = 1700 outside = 1750
+			final int divider = 22;//inside = 41, outside = 22
+			
+			if(left) {
+				//turn left
+				msg = "moveR100L-100";
+				dPack.setData(msg.getBytes());
+			}
+			else {
+				//turn right
+				msg = "moveR-100L100";
+				dPack.setData(msg.getBytes());
+			}
+			try {
+				outSocket.send(dPack);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			//set stop data
+			msg = "stop";
+			dPack.setData(msg.getBytes());
+			//sleep x? seconds
+			try {
+				Thread.sleep(offset + (1000*degrees)/divider);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			//send stop
+			try {
+				outSocket.send(dPack);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 	}
@@ -286,8 +494,8 @@ public class Server extends Activity implements LocationListener, SensorEventLis
 	public void onLocationChanged(Location location) {
 		double lat = (location.getLatitude());
 		double lng = (location.getLongitude());
-		//latitude = lat;
-		//longitude = lng;
+		latitude = lat;
+		longitude = lng;
 		latitudeField.setText(String.valueOf(lat));
 		longitudeField.setText(String.valueOf(lng));
 		double[] bearing = {0, 0};
@@ -352,75 +560,75 @@ public class Server extends Activity implements LocationListener, SensorEventLis
 		}
 		
 		//send control messages
-		boolean send = false;
-		String msg;
-		byte[] data = new byte[1024];
-		DatagramPacket dPack = new DatagramPacket(data,1024);
-		
-		if(manMove) {
-			//do nothing, gui is in control
-			//System.out.println("manual movement");
-		}
-		else if (autoMove) {
-			//movement algorithm for moving to waypoint
-			//System.out.println("doing automove");
-			if(destDistance > 3){
-				if(facing - destBearing > 3){
-					//set msg to turn left
-					msg = "left";
-					dPack.setData(msg.getBytes());
-					send = !lastCommand.equals("left");
-					lastCommand = "left";
-				}
-				else if (destBearing - facing > 3){
-					//set msg turn right
-					msg = "right";
-					dPack.setData(msg.getBytes());
-					send = !lastCommand.equals("right");
-					lastCommand = "right";
-				}
-				else {
-					if(lastCommand.equals("left") || lastCommand.equals("right")) {
-						msg = "stop";
-						lastCommand = "stop";
-						send = true;
-					}
-					else if(lastCommand.equals("stop")) {
-						msg = "forward";
-						lastCommand = "forward";
-						send = true;
-					}
-					else{
-						msg = "stop";
-						send = false;
-					}
-					dPack.setData(msg.getBytes());
-				}
-			}
-			else {
-				//stop when we reach the destination
-				msg = "stop";
-				dPack.setData(msg.getBytes());
-				send = !lastCommand.equals("stop");
-				lastCommand = "stop";
-			}
-		}
-		else {
-			//send stop messages
-			msg = "stop";
-			dPack.setData(msg.getBytes());
-			send = !lastCommand.equals("stop");
-			lastCommand = "stop";
-		}
-		
-		if(send){
-			try {
-				outSocket.send(dPack);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+//		boolean send = false;
+//		String msg;
+//		byte[] data = new byte[1024];
+//		DatagramPacket dPack = new DatagramPacket(data,1024);
+//		
+//		if(manMove) {
+//			//do nothing, gui is in control
+//			//System.out.println("manual movement");
+//		}
+//		else if (autoMove) {
+//			//movement algorithm for moving to waypoint
+//			//System.out.println("doing automove");
+//			if(destDistance > 3){
+//				if(facing - destBearing > 3){
+//					//set msg to turn left
+//					msg = "left";
+//					dPack.setData(msg.getBytes());
+//					send = !lastCommand.equals("left");
+//					lastCommand = "left";
+//				}
+//				else if (destBearing - facing > 3){
+//					//set msg turn right
+//					msg = "right";
+//					dPack.setData(msg.getBytes());
+//					send = !lastCommand.equals("right");
+//					lastCommand = "right";
+//				}
+//				else {
+//					if(lastCommand.equals("left") || lastCommand.equals("right")) {
+//						msg = "stop";
+//						lastCommand = "stop";
+//						send = true;
+//					}
+//					else if(lastCommand.equals("stop")) {
+//						msg = "forward";
+//						lastCommand = "forward";
+//						send = true;
+//					}
+//					else{
+//						msg = "stop";
+//						send = false;
+//					}
+//					dPack.setData(msg.getBytes());
+//				}
+//			}
+//			else {
+//				//stop when we reach the destination
+//				msg = "stop";
+//				dPack.setData(msg.getBytes());
+//				send = !lastCommand.equals("stop");
+//				lastCommand = "stop";
+//			}
+//		}
+//		else {
+//			//send stop messages
+//			msg = "stop";
+//			dPack.setData(msg.getBytes());
+//			send = !lastCommand.equals("stop");
+//			lastCommand = "stop";
+//		}
+//		
+//		if(send){
+//			try {
+//				outSocket.send(dPack);
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		}
 	}
 
 	@Override
