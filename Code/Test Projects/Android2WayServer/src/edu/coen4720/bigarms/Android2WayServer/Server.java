@@ -50,8 +50,8 @@ public class Server extends Activity implements LocationListener, SensorEventLis
 	public static final int SERVERPORT = 8080;
 	public static final int VEXPORT = 9923;
 	public static final int TABLETPORT = 7777;
-	private static final String VEX_IP = "192.168.1.127";
-	private static final String TABLET_IP = "192.168.1.132";
+	private static final String VEX_IP = "192.168.11.23";
+	private static final String TABLET_IP = "192.168.11.8";
 	
 	//gps class values
 	private TextView latitudeField;
