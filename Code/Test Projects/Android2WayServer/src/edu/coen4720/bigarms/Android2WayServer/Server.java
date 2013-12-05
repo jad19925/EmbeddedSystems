@@ -236,6 +236,12 @@ public class Server extends Activity implements LocationListener, SensorEventLis
 				//set class variables to stop moving while message is being parsed
 				autoMove = false;
 				manMove = false;
+//				try {
+//					Thread.sleep(2500);
+//				} catch (InterruptedException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
 				//parse message, set parameters based on contents
 				//lat/long string format = "lat%flon%f"
 				String dString = msg.substring(3, msg.lastIndexOf('l'));
@@ -341,8 +347,9 @@ public class Server extends Activity implements LocationListener, SensorEventLis
 				
 				double lFacing = facing;
 				double lDestBearing = destBearing;
+				double lDestDistance = destDistance;
 				
-				if(destDistance < 5) {
+				if(lDestDistance < 10) {
 					msg = "stop";
 					dPack.setData(msg.getBytes());
 					try {
@@ -351,10 +358,12 @@ public class Server extends Activity implements LocationListener, SensorEventLis
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
+					byte[] data1 = new byte[1024];
+					DatagramPacket dPack1 = new DatagramPacket(data1,1024);
 					msg = "reachedWP";
-					dPack.setData(msg.getBytes());
+					dPack1.setData(msg.getBytes());
 					try {
-						tabletSocket.send(dPack);
+						tabletSocket.send(dPack1);
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
