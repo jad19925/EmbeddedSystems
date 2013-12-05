@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout 
-    xmlns:map="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:map="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/color_greenyellow"
@@ -11,286 +11,244 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:textAlignment="center"
-    tools:context=".TabletMainActivity" xmlns:android="http://schemas.android.com/apk/res/android">
+    tools:context=".TabletMainActivity" >
 
     <LinearLayout
         android:id="@+id/LLTopHalf"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="0.70"
+        android:layout_height="fill_parent"
         android:background="@color/color_white"
         android:baselineAligned="false"
         android:orientation="horizontal"
-	 >
-       
-    <LinearLayout
-        android:id="@+id/LocationInfo_Layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="0.5"
-        android:orientation="vertical"
-        
-		 >
-		<RelativeLayout
-		    android:id="@+id/LocationRLayout"
-		    android:layout_width="match_parent"
-		    android:layout_height="wrap_content"
-		    android:background="@color/color_lightlavender"
-		    android:gravity="top"
-		    
-		    >
+        android:layout_weight="0.6" >
 
-        <TextView
-            android:id="@+id/TextViewLatitudeString"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:text="My Latitude: "
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        <TextView
-            android:id="@+id/TextViewLatitudeValue"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:layout_toRightOf="@id/TextViewLatitudeString"
-            android:text="@string/Unknown"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        <TextView
-            android:id="@+id/TextViewLongitudeString"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_below="@id/TextViewLatitudeString"
-            android:text="My Longitude: "
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        <TextView
-            android:id="@+id/TextViewLongitudeValue"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_below="@id/TextViewLatitudeValue"
-            android:layout_toRightOf="@id/TextViewLongitudeString"
-            android:text="@string/Unknown"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        <TextView
-            android:id="@+id/TextViewDistanceString"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_below="@id/TextViewLongitudeString"
-            android:text="Distance To Dest: "
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        <TextView
-            android:id="@+id/TextViewDistanceValue"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/TextViewLongitudeValue"
-            android:layout_toRightOf="@id/TextViewDistanceString"
-            android:text="@string/Unknown"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <TextView
-        android:id="@+id/tvFacing"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="false"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@id/TextViewDistanceString"
-        android:text="Facing (Degrees): 0.0"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        </RelativeLayout> 
-        
-        
-        <ScrollView
-         android:id="@+id/ScrollingPhoneMessages_Layout"
-         android:layout_width="fill_parent"
- 		 android:layout_height="fill_parent"
- 		 android:gravity="top"
- 		 android:background="@color/color_white"
-         >
-            
-        <TextView
-        android:id="@+id/text2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        />
-		</ScrollView>
-		
-
-		
-        </LinearLayout>
-        
-   
-    <RelativeLayout
-        android:id="@+id/WayPoint_Layout"
-         android:layout_width="fill_parent"
-		android:layout_height="fill_parent"
-		android:background="@color/color_white"
-		android:layout_weight="0.5" >
-
-        <Button
-            android:id="@+id/chooseWayPoint"
+        <LinearLayout
+            android:id="@+id/LocationInfo_Layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-			android:layout_centerHorizontal="true"
-			android:layout_marginTop="@dimen/margin12"
-            android:text="@string/string_chooseWayPoint"
-            android:onClick="showWayPointPickerDialog" />
+            android:layout_height="match_parent"
+            android:layout_weight="0.5"
+            android:orientation="vertical" >
 
-        <Button
-            android:id="@+id/newWayPoint"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/chooseWayPoint"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="@dimen/margin24"
-            android:onClick="showWayPointAdderDialog"
-            android:text="@string/string_newWayPoint" />
-        
-                <Button
-                    android:id="@+id/comehomeWayPoint"
-                    android:layout_width="match_parent"
+            <RelativeLayout
+                android:id="@+id/LocationRLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/color_white"
+                android:gravity="top" >
+
+                <TextView
+                    android:id="@+id/TextViewLatitudeString"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/newWayPoint"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginTop="@dimen/margin24"
-                    android:onClick="comeHomeOnClick"
-                    android:text="@string/string_comehomeWayPoint" />
-    
-      </RelativeLayout>  
-      
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentTop="true"
+                    android:text="My Latitude: "
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <TextView
+                    android:id="@+id/TextViewLatitudeValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_toRightOf="@id/TextViewLatitudeString"
+                    android:text="@string/Unknown"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <TextView
+                    android:id="@+id/TextViewLongitudeString"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_below="@id/TextViewLatitudeString"
+                    android:text="My Longitude: "
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <TextView
+                    android:id="@+id/TextViewLongitudeValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_below="@id/TextViewLatitudeValue"
+                    android:layout_toRightOf="@id/TextViewLongitudeString"
+                    android:text="@string/Unknown"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <TextView
+                    android:id="@+id/TextViewDistanceString"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_below="@id/TextViewLongitudeString"
+                    android:text="Distance To Dest: "
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <TextView
+                    android:id="@+id/TextViewDistanceValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/TextViewLongitudeValue"
+                    android:layout_toRightOf="@id/TextViewDistanceString"
+                    android:text="@string/Unknown"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <TextView
+                    android:id="@+id/tvFacing"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="false"
+                    android:layout_alignParentLeft="true"
+                    android:layout_below="@id/TextViewDistanceString"
+                    android:text="Facing (Degrees): 0.0"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <ToggleButton
+                    android:id="@+id/TiltToggle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@id/tvFacing"
+                    android:layout_alignParentRight="true"
+                    android:onClick="onToggleClicked"
+                    android:textOff="Off"
+                    android:textOn="On" />
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/TextViewTilt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tilt Control is Off" />
+
+            <LinearLayout
+                android:id="@+id/scroll_shell"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" >
+
+                <ScrollView
+                    android:id="@+id/ScrollingPhoneMessages_Layout"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:background="@color/color_matching_blue"
+                    android:gravity="top" >
+
+                    <TextView
+                        android:id="@+id/text2"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+                </ScrollView>
+            </LinearLayout>
         </LinearLayout>
-    
+
+        <RelativeLayout
+            android:id="@+id/WayPoint_Layout"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="0.5"
+            android:background="@color/color_white" >
+
+            <Button
+                android:id="@+id/chooseWayPoint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="@dimen/margin06"
+                android:onClick="showWayPointPickerDialog"
+                android:text="@string/string_chooseWayPoint" />
+
+            <Button
+                android:id="@+id/newWayPoint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/chooseWayPoint"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="@dimen/margin12"
+                android:onClick="showWayPointAdderDialog"
+                android:text="@string/string_newWayPoint" />
+
+            <Button
+                android:id="@+id/manualNewWayPoint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/newWayPoint"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="@dimen/margin12"
+                android:onClick="showWayPointManualAdderDialog"
+                android:text="@string/string_manualNewWayPoint" />
+
+            <Button
+                android:id="@+id/comehomeWayPoint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/manualNewWayPoint"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="@dimen/margin12"
+                android:onClick="comeHomeOnClick"
+                android:text="@string/string_comehomeWayPoint" />
+            
+                        <Button
+                android:id="@+id/runWayPointProgram"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/comehomeWayPoint"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="@dimen/margin12"
+                android:onClick="runProgramOnClick"
+                android:text="@string/string_runProgram" />
+
+            <View
+                android:id="@+id/divider_line"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_below="@+id/runWayPointProgram"
+                android:layout_marginBottom="4dp"
+                android:layout_marginTop="4dp"
+                android:background="@color/color_green" />
+
+            <Button
+                android:id="@+id/speedbutton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/runWayPointProgram"
+                
+                android:layout_marginTop="@dimen/margin12"
+                android:onClick="showSpeedPickerDialog"
+                android:text="@string/string_speed"
+                android:textAlignment="center" />
+
+            <Button
+                android:id="@+id/remote"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/runWayPointProgram"
+                android:layout_marginTop="@dimen/margin12"
+                android:layout_toRightOf="@id/speedbutton"
+                android:onClick="showRemoteController"
+                android:text="@string/string_controller" />
+
+        </RelativeLayout>
+    </LinearLayout>
+
     <RelativeLayout
         android:id="@+id/LLBottomHalf"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="0.3"
         android:background="@color/color_white"
         android:baselineAligned="false"
-        android:orientation="horizontal" >
-        
-	<RelativeLayout 
-	    android:id="@+id/Controller_Layout"
-	    android:layout_alignParentTop="true"
-	    android:layout_alignParentRight="true"
-	    android:gravity="right"
-		android:layout_toRightOf="@+id/Map_Layout"
-	    android:layout_width="fill_parent"
-		android:layout_height="match_parent" 
-	
-		android:paddingLeft="8dp"
-		android:paddingRight="8dp" android:background="@color/color_white"
-		>
-        		
-	    
-	    <Button android:id="@+id/stop" 
-    	android:layout_width="match_parent"
-		android:layout_height="wrap_content" 
-		android:background="@color/color_red"
-		android:layout_alignParentTop="true"
-		android:minHeight="80dip" android:text="@string/string_stop"
-		android:textColor="@color/color_white" android:textSize="@dimen/largeFontStatic24"
-		android:textStyle="bold" android:onClick="onClick" />
-	    
-	    <Button android:id="@+id/forward" 
-		    android:layout_width="match_parent"
-			android:layout_height="wrap_content" 
-			android:layout_below ="@+id/stop"
-			android:layout_centerHorizontal="true" android:layout_marginTop="@dimen/margin12"
-			android:paddingBottom="@dimen/margin24" android:paddingTop="@dimen/margin24"
-			android:text="@string/string_forward" android:textAlignment="center"
-			android:onClick="onClick" />
-	    
-	    
-	    <Button
-		    android:id="@+id/speedbutton"
-		    android:layout_width="wrap_content"
-		    android:layout_height="wrap_content"
-		    android:layout_below="@id/forward"
-		    android:layout_centerHorizontal="true"
-		    android:layout_marginTop="16dp"
-		    android:text="@string/string_speed"
-		    android:textAlignment="center" 
-		    android:onClick="showSpeedPickerDialog"  />
-	    
-		<Button
-		    android:id="@+id/left"
-		    android:layout_width="wrap_content"
-		    android:layout_height="wrap_content"
-		    android:layout_alignParentLeft="true"
-		    android:layout_below="@id/speedbutton"
-		    android:layout_marginLeft="@dimen/margin12"
-		    android:layout_marginTop="60dp"
-		    android:onClick="onClick"
-		    android:padding="@dimen/margin24"
-		    android:text="@string/string_left" />
+        android:orientation="horizontal"
+        android:padding="@dimen/margin06"
+        android:layout_weight="0.5" >
 
-		<Button android:id="@+id/backward" 
-		    android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_alignParentBottom="true"
-			android:layout_centerHorizontal="true" android:layout_marginBottom="@dimen/margin12"
-			android:paddingBottom="@dimen/margin24" android:paddingTop="@dimen/margin24"
-			android:text="@string/string_backward" android:textAlignment="center"
-			android:onClick="onClick" />
+        <LinearLayout
+            android:id="@+id/Map_Layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:background="@color/color_yellow"
+            android:gravity="clip_horizontal"
+            android:orientation="vertical" >
+        </LinearLayout>
+    </RelativeLayout>
 
-		<Button
-		    android:id="@+id/right"
-		    android:layout_width="wrap_content"
-		    android:layout_height="wrap_content"
-		    android:layout_alignParentRight="true"
-		    android:layout_below="@id/speedbutton"
-		    android:layout_marginRight="@dimen/margin12"
-		    android:layout_marginTop="60dp"
-		    android:onClick="onClick"
-		    android:padding="@dimen/margin24"
-		    android:text="@string/string_right"
-		    android:textAlignment="center" />
-
-		<Button
-		    android:id="@+id/exit"
-		    android:layout_width="wrap_content"
-		    android:layout_height="wrap_content"
-		    android:layout_above="@+id/backward"
-		    android:layout_centerHorizontal="true"
-		    android:onClick="onClick"
-		    android:text="@string/string_exit"
-		    android:textAlignment="center" />
-
-	</RelativeLayout>
-    
-    	<LinearLayout
-    	   
-    	    android:id="@+id/Map_Layout"
-    	    android:layout_width="wrap_content"
-    	    android:layout_height="match_parent"
-    	    android:orientation="vertical"
-    	    android:layout_alignParentTop="true"
-    	    android:layout_alignParentLeft="true"
-    	    android:gravity="clip_horizontal"
-    	       	  	
-    	    android:background="@color/color_white"
-    	   >
-		
-    		<Button
-    		    android:id="@+id/button1"
-    		    android:layout_width="wrap_content"
-    		    android:layout_height="wrap_content"
-    		    android:text="TheFlexibleWidthButtonSetsTheMapWidth"
-    		    android:visibility="invisible" />
-
-          </LinearLayout>
-
-        
-	</RelativeLayout>
 </LinearLayout>
