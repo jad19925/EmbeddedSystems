@@ -20,14 +20,21 @@
     <string name="dialog_speed_pick_message">Change the Speed of the VEX robot</string>
     <string name="dialog_change_speed">Change Speed</string>
     <string name="dialog_cancel_change">Cancel</string>
-    <string name="string_speed">speed</string>
+    <string name="string_speed">Change Speed</string>
     <string name="string_exit">exit</string>
     <color name="color_lightlavender">#CCCCFF</color>
-    <string name="Unknown">Unknown</string>
+    <color name="color_brightblue">#0099cc</color><color name="color_matching_blue">#33b5e5</color><string name="Unknown">Unknown</string>
     <string name="string_chooseWayPoint">Choose Way Point</string>
-    <string name="string_newWayPoint">Create New Way Point</string>
-    <string name="string_comehomeWayPoint">Come Home</string>
+    <string name="string_newWayPoint">Create New Way Point Here</string>
+    <string name="string_manualNewWayPoint">Create New Way Point Manually</string><string name="string_comehomeWayPoint">Come Home</string>
     <string name="dialog_select_waypoint">Go To This WP</string><string name="dialog_add_waypoint">Yes, Add New Way Point</string><string name="dialog_wp_pick_message">Choose a WayPoint that the robot should go to.</string>
+    <string name="msg_manualNewWP_instr">Instructions: Please enter the numerical Latitude and Longitude values for the new Way Point.</string>
+    <string name="string_controller">Remote Control</string>
+    <string name="string_tilt">Tilt Control</string>
+    <string name="string_runProgram">Run Program</string>
+    
+    
+    
     
     
     

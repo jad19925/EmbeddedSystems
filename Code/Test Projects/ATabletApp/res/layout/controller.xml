@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/Controller_Layout"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/margin24" >
+
+     <Button
+                android:id="@+id/stop"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:background="@color/color_red"
+                android:minHeight="80dip"
+                android:onClick="onRemoteClick"
+                android:text="@string/string_stop"
+                android:textColor="@color/color_white"
+                android:textSize="@dimen/largeFontStatic24"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/forward"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/stop"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="@dimen/margin12"
+                android:layout_toLeftOf="@+id/right"
+                android:layout_toRightOf="@+id/left"
+                android:onClick="onRemoteClick"
+                android:paddingBottom="@dimen/margin24"
+                android:paddingTop="@dimen/margin24"
+                android:text="@string/string_forward"
+                android:textAlignment="center" />
+
+            <Button
+                android:id="@+id/left"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/forward"
+                android:layout_marginBottom="@dimen/margin12"
+                android:layout_marginLeft="@dimen/margin12"
+                android:layout_marginTop="@dimen/margin24"
+                android:onClick="onRemoteClick"
+                android:padding="@dimen/margin24"
+                android:paddingRight="30dp"
+                android:text="@string/string_left" />
+
+            <Button
+                android:id="@+id/backward"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="false"
+                android:layout_below="@id/left"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="@dimen/margin24"
+                android:layout_toLeftOf="@+id/right"
+                android:layout_toRightOf="@id/left"
+                android:onClick="onRemoteClick"
+                android:paddingBottom="@dimen/margin24"
+                android:paddingTop="@dimen/margin24"
+                android:text="@string/string_backward"
+                android:textAlignment="center" />
+
+            <Button
+                android:id="@+id/right"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_below="@id/forward"
+                android:layout_marginRight="@dimen/margin12"
+                android:layout_marginTop="@dimen/margin24"
+                android:onClick="onRemoteClick"
+                android:padding="@dimen/margin24"
+                android:text="@string/string_right"
+                android:textAlignment="center" />
+
+            <Button
+                android:id="@+id/exit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/forward"
+                android:layout_centerHorizontal="true"
+                android:layout_centerInParent="false"
+                android:layout_centerVertical="true"
+                android:layout_marginBottom="@dimen/margin24"
+                android:layout_marginTop="@dimen/margin24"
+             android:onClick="onRemoteClick"
+                android:text="@string/string_exit"
+                android:textAlignment="center" />
+            
+                       <View
+                android:id="@+id/divider_line_2"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_below="@+id/backward"
+                android:layout_marginBottom="4dp"
+                android:layout_marginTop="4dp"
+                android:background="@color/color_green" />
+            
+            
+
+</RelativeLayout>

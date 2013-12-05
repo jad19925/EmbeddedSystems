@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -57,27 +58,32 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 public class TabletMainActivity extends Activity implements LocationListener, SensorEventListener, 
-						SpeedPickerFragment.mySpeedChangeListener, LatLonPickerFragment.WPSelectListener, WayPointAdderFragment.WPAdderListener  {
+						SpeedPickerFragment.mySpeedChangeListener, LatLonPickerFragment.WPSelectListener, 
+						WayPointAdderFragment.WPAdderListener, ManualWayPointFragment.WPManualListener, OnMapLongClickListener  {
 	//network class values
-	private DatagramSocket outSocket;
+	private DatagramSocket outSocket;  
 	Handler updateConversationHandler;
 	Thread serverThread = null;
 	private TextView text;
 	public static final int PHONEPORT = 8080;
 	public static final int TABLETPORT = 7777;
 	public static final int VEXPORT = 9923;
-	private static final String VEX_IP = "192.168.1.127";
-	private static final String PHONE_IP = "192.168.1.148";
+	private static final String VEX_IP = "192.168.11.23";  // for dd-wrt: "192.168.1.127"
+	private static final String PHONE_IP = "192.168.11.42"; // testing: should be"192.168.1.148";
 
 	//gps class values
 	private TextView latitudeField;
@@ -99,15 +105,24 @@ public class TabletMainActivity extends Activity implements LocationListener, Se
 	private  double destLon = -87.929579;
 	
 	public String myLocation = "lat0.000000lon-0.000000";  //default value when no location info is available.
+	public String mapPoint = "lat0.0000lon-0.00000"; //default value; a position on the map, that will be updated in onMapLongClick 
 	
 	public int currentSpeed = 15; //default speed 
 	
 	public ArrayList<String> waypointList;  //list of WayPoints
+	public int waypointCounter = 0; //keeps a count of the current waypoint in the waypoint list.
 	MapFragment myMapFragment; //for showing a Map on the screen
 	GoogleMap myMap;  //map object itself - for adding markers to it
 	Marker destMarker ; // a marker object for displaying a target destination
 	Marker tabletMarker; //a marker object for displaying tablet's location
 	Marker phoneMarker ; // a marker object for displaying the phone's current location.
+	
+	//integrating tilt control
+	boolean tiltEnabled = false;  //off by default
+	private TextView tiltInfoDisplay;
+	private float[] gravity = new float[3];
+	private int tiltcounter = 0;
+	private final int counterLimit = 20; // default: 10. increase this number to make the tilt control send control messages more infrequently.
 	
 	public String getIpAddr() {
 		//Get Wi-Fi information
@@ -138,6 +153,7 @@ public class TabletMainActivity extends Activity implements LocationListener, Se
 	    longitudeField = (TextView) findViewById(R.id.TextViewLongitudeValue);
 	    //toDestBField = (TextView) findViewById(R.id.TextViewBearingValue);
 	    toDestDField = (TextView) findViewById(R.id.TextViewDistanceValue);
+	    tiltInfoDisplay = (TextView) findViewById(R.id.TextViewTilt);
 		
 		//Handler that receives information from Client
 		updateConversationHandler = new Handler();
@@ -166,25 +182,56 @@ public class TabletMainActivity extends Activity implements LocationListener, Se
 	      System.out.println("Provider " + provider + " has been selected.");
 	      onLocationChanged(location);
 	    } else {
-	      latitudeField.setText("Location not available");
-	      longitudeField.setText("Location not available");
+	      latitudeField.setText("Not available");
+	      longitudeField.setText("Not available");
 	    }
 	    
 	    //initialize the WayPoint list
 	    //Note: this list will be dynamically changed during execution to add more waypoints, 
 	    //but those changes will not be persistent when the program is restarted.
 	    waypointList = new ArrayList<String>();
-	    waypointList.add("lat43.036969lon-87.929579"); 
+	    /*waypointList.add("lat43.036969lon-87.929579");  //sample waypoints
 	    waypointList.add("lat43.0384707lon-87.933528");
 	    waypointList.add("lat43.037693lon-87.929883");
 	    waypointList.add("lat43.037364lon-87.929759");
+	    */
+	    		waypointList.add("lat43.037784lon-87.930132");
+	    		waypointList.add("lat43.037705lon-87.930132");
+	    		waypointList.add("lat43.037638lon-87.930134");
+	    		waypointList.add("lat43.037431lon-87.930121");
+	    		waypointList.add("lat43.037368lon-87.930124");
+	    		waypointList.add("lat43.037274lon-87.930129");
+	    		waypointList.add("lat43.037252lon-87.930102");
+	    		waypointList.add("lat43.037205lon-87.930027");
+	    		waypointList.add("lat43.037144lon-87.929939");
+	    		waypointList.add("lat43.037088lon-87.929837");
+	    		waypointList.add("lat43.037023lon-87.929724");
+	    		waypointList.add("lat43.03697lon-87.929614");
+	    		waypointList.add("lat43.036956lon-87.929579");
+	    		waypointList.add("lat43.036962lon-87.929582");  //(lalumiere)
+	    		waypointList.add("lat43.03697lon-87.929547");
+	    		waypointList.add("lat43.03699lon-87.929501");
+	    		waypointList.add("lat43.037105lon-87.929391");
+	    		waypointList.add("lat43.03737lon-87.929182");
+	    		waypointList.add("lat43.037458lon-87.929086");
+	    		waypointList.add("lat43.03747lon-87.929024");
+	    		waypointList.add("lat43.03755lon-87.929021");
+	    		waypointList.add("lat43.037666lon-87.929016");
+	    		waypointList.add("lat43.037717lon-87.929016");
+	    		waypointList.add("lat43.037723lon-87.929115");
+	    		waypointList.add("lat43.037711lon-87.929421");
+	    		waypointList.add("lat43.037705lon-87.929657");
+	    		waypointList.add("lat43.037703lon-87.929896");
+	    		waypointList.add("lat43.037705lon-87.930035");
+	    		waypointList.add("lat43.037709lon-87.930124");
+	    
 	    //TODO: Add more default waylists
 	    
 	    //options to config map initially
 	    LatLng initialmapcoords = new LatLng (43.037835,-87.930859);  //Olin southside
 	    CameraPosition cp = new CameraPosition (initialmapcoords, 16.5f, 0.0f, 0.0f); //zoom, tilt, bearing TODO: proper floats
 	    GoogleMapOptions options = new GoogleMapOptions();
-	    options.mapType(GoogleMap.MAP_TYPE_NORMAL);
+	    options.mapType(GoogleMap.MAP_TYPE_HYBRID);
 	    options.camera(cp);  //sets initial camera position
 	   	    
 	    //add a map to a portion of the Activity screen:
@@ -226,13 +273,19 @@ public class TabletMainActivity extends Activity implements LocationListener, Se
        if (ConnectionResult.SUCCESS == resultCode) {
 	    myMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.Map_Layout)).getMap();
 	  
+	    
+	    //add markers to map
         destMarker =  myMap.addMarker(new MarkerOptions()
         .position(new LatLng (destLat, destLon)).title("Destination")); 
         
         tabletMarker = myMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("My Location").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
 	
         phoneMarker =  myMap.addMarker(new MarkerOptions().position(new LatLng(destLat, destLon)).title("Phone").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-        }
+        
+       //change other map configurations
+      myMap.setOnMapLongClickListener(this);
+               
+       }
        else {
    	    //initialize markers to prevent crashes
     	destMarker = new Marker (null);
@@ -314,6 +367,98 @@ public class TabletMainActivity extends Activity implements LocationListener, Se
 		
 		if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
 			accValues = event.values;
+			//// Tilt Control enablers here!
+			if (tiltEnabled){
+				float x, y, z;
+				int percentLeft = 0, percentRight = 0;
+				
+				final float alpha = 0.8f;
+				x = gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0];
+				y = gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
+				z = gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2];
+			
+				//calibrate for flatness on a moving earth
+				x -= 0.065;
+				y -= 0.133;
+				
+				//tilted all the way to the right
+				if(Math.abs(x/y) > 40 && x > 0)
+				{
+					percentRight = 100;
+					percentLeft = -100;
+				}
+				//tilted all the way left
+				else if(Math.abs(x/y) > 40 && x < 0)
+				{
+					percentRight = -100;
+					percentLeft = 100;
+				}
+				//moving zero
+				else if(Math.abs(x) < 1 && Math.abs(y) < 1)
+				{
+					percentRight = 0;
+					percentLeft = 0;
+				}
+				else
+				{
+					//percentRight = (int)maxAbs((x * 100 / 6), 100);
+					//percentLeft = (int)maxAbs((-x * 100 / 6), 100);
+					if(Math.abs(y) > Math.abs(x)) {
+						float vF = (-y*100)/6;
+						if(vF >= 0) {
+							vF = Math.min(vF,100);
+						}
+						else{
+							vF = Math.max(vF, -100);
+						}
+						if(x > 0) {
+							percentRight = (int)vF;
+							percentLeft = (int)((Math.abs(vF) - Math.min((x*100)/6, 100))*Math.signum(vF));
+						}
+						else {
+							percentRight = (int)((Math.abs(vF) + Math.max((x*100)/6, -100))*Math.signum(vF));
+							percentLeft = (int)vF;
+						}
+					}
+					else {
+						float speed = Math.max(Math.abs(x*100)/6, 100);
+						int dir = (int)Math.signum(-y);
+						if(x > 0) {
+							percentRight = (int)speed*dir;
+							percentLeft = (int)(Math.abs(speed) - Math.min((x*100)/6, 100))*dir;
+						}
+						else {
+							percentRight = (int)(Math.abs(speed) + Math.max((x*100)/6, -100))*dir;
+							percentLeft = (int)speed*dir;
+						}
+					}
+				}
+				tiltInfoDisplay.setText("Percent Left = " + percentLeft + ", Percent Right = " + percentRight);
+				if(tiltcounter >= counterLimit){
+					String str = "moveR" + percentRight + "L" + percentLeft;
+					byte[] data = new byte[1024];
+					DatagramPacket dPack = new DatagramPacket(data,1024);
+					dPack.setData(str.getBytes());
+					try {
+						if(outSocket != null){
+							outSocket.send(dPack);
+							//System.out.println("Not Null");
+						}
+						else{
+							//System.out.println("Null");
+						}
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					tiltcounter = 0;
+				}
+				else {
+					tiltcounter++;
+				}
+				
+							
+			}//boolean tiltEnabled, within method onSensorChanged
 		}
 		else if(event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
 			magValues = event.values;
@@ -328,7 +473,7 @@ public class TabletMainActivity extends Activity implements LocationListener, Se
 			}
 			tvFacing.setText("Facing (Degrees): " + Double.toString(facing) );  //degrees symbol here
 		}
-	}
+	} //end method onSensorChanged
 
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -362,7 +507,7 @@ public class TabletMainActivity extends Activity implements LocationListener, Se
 		bearing[1] = R * c;
 	}
 	
-	
+		
 	//parses the location into a String in the desired format
 	public static String parseLocation (double lat, double lon){
 		return "lat" + lat + "lon" + lon;
@@ -386,18 +531,20 @@ public class TabletMainActivity extends Activity implements LocationListener, Se
 		
 	}
 	
-	
-	/** onClick: Handles all GUI button clicks for directional remote controller
-	 * 
-	 * @param view
+	//
+	/** onRemoteClick: Handles all GUI button clicks for directional remote controller
+	 *  This method was modified because the remote control has been moved to a fragment.
+	 * @param view (the button being clicked)
+	 *
 	 */
-	public void onClick(View view) {
+	public void onRemoteClick (View view) {
+		String str ="";
 		try {
 			
 			//get String from GUI:
-			Button pressedButton = (Button) findViewById(view.getId());
-			String str = pressedButton.getText().toString();
-					
+			Button pressedButton = (Button) view;
+			str = pressedButton.getText().toString();
+		
 				byte[] data = new byte[1024];
 				DatagramPacket dPack = new DatagramPacket(data,1024);
 				dPack.setData(str.getBytes());
@@ -410,11 +557,23 @@ public class TabletMainActivity extends Activity implements LocationListener, Se
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		
 	}
 	
 	
 	///---------------------------------------------------------
 		/// new methods for calling the Fragment GUI:
+	
+	/**
+	 * displays the Remote control fragment
+	 */
+	public void showRemoteController(View v) {
+	    DialogFragment newFragment = new RemoteControlFragment();
+	    newFragment.show(getFragmentManager(), "Remocon");  //shows the speed changing dialog box
+	}
+	
+	
 	/**
 	 * displays a new instance of the speedPicker
 	 * Called from the GUI button click
@@ -522,12 +681,12 @@ public class TabletMainActivity extends Activity implements LocationListener, Se
 	 */
 			public void showWayPointAdderDialog(View v) {
 			    DialogFragment newFragment = new WayPointAdderFragment();
-			    newFragment.show(getFragmentManager(), "AddNewWP");  //shows the speed changing dialog box; quotes is unique name
+			    newFragment.show(getFragmentManager(), "AddNewWP");  //shows dialog box; quotes is unique name
 			}
 			
 			
 		    /**Responds to positive click in the dialog fragment
-		     * 
+		     * For creating a new WayPoint at the Current Location
 		     * @param dialog
 		     */
 			@Override
@@ -545,6 +704,93 @@ public class TabletMainActivity extends Activity implements LocationListener, Se
 				// do nothing on cancel
 				
 			}
+			
+						
+			
+	///////Methods for Adding WP manually.
+			/**
+			 * displays a new dialog for manual
+			 * called by GUI
+			 * @param v
+			 */
+			public void showWayPointManualAdderDialog(View v) {
+			    DialogFragment newFragment = new ManualWayPointFragment();
+			    newFragment.show(getFragmentManager(), "AddNewWPManually");  //shows the speed changing dialog box; quotes is unique name
+			}
+			
+			
+	      
+			/**Responds to positive click in the dialog fragment
+			 * for manually typing in latitude longitude values for a new way point.
+			 * Adds the new location to the waypoint list.
+			 */
+	      @Override
+	      public void onWPManualPositiveClick(DialogFragment dialog) {
+	
+	    	  double latv; //= myFragment.latv;
+	    	  double lonv; //= myFragment.lonv;
+	    	  
+          	//get values from the EditText boxes
+	    	  Dialog myDialog = dialog.getDialog();
+          	EditText latText = (EditText) myDialog.findViewById(R.id.lat_value);   //findViewById is a method for the Activity class
+          	String latStr = latText.getText().toString();
+          	EditText lonText = (EditText) myDialog.findViewById(R.id.lon_value);
+          	String lonStr = lonText.getText().toString();
+          
+          	
+          	//check that the input values are numerical, and can be parsed without error.
+          	try {
+          		latv = Double.parseDouble(latStr);
+          	   
+          	}
+          	catch (NumberFormatException e){
+          		latv = 0; //set to something that won't crash the app as a temporary stop gap measure
+          		e.printStackTrace();
+          		
+          	}
+          	
+          	try{
+        	lonv = Double.parseDouble(lonStr);
+          	}
+          	catch (NumberFormatException e){
+          		lonv = 0; //set to something that won't crash the app as a temporary stop gap measure
+          		e.printStackTrace();
+          	}
+            
+	    	  String coords = parseLocation(latv, lonv);  //get the doubles formatted correctly.
+				//add the current coords to the waypoint list:
+				waypointList.add(coords);
+	    	  
+	      }
+	      
+	      
+	      @Override
+		   public void onWPManualNegativeClick(DialogFragment dialog){
+		        	//do nothing on cancel
+		        	
+		        }
+			
+			
+	      /**
+		     * Implements the interface onMapLongClickListener.
+		     * When user "long presses" on the map do this.  
+		     */
+		    public void onMapLongClick (LatLng pnt){
+		    	//update the mapLocation string to the value of the clicked point on the map.
+		    	mapPoint = parseLocation (pnt.latitude, pnt.longitude);
+		    	
+		    	//show the fragment dialog box
+			    DialogFragment newFragment = new MapWayPointAdderFragment();
+			    newFragment.show(getFragmentManager(), "AddNewWPfromMap");  //shows the speed changing dialog box; quotes is unique name
+			
+		    	
+		    	//TODO
+		    	
+		    	
+		    } //end method onMapLongClick
+		    
+		
+	      
 	      
 	      
 	      
@@ -577,9 +823,69 @@ public class TabletMainActivity extends Activity implements LocationListener, Se
 	    }//end method comeHome
 	    
 	    
-
 	    
-	
+	    /**
+	     * Tilt control
+	     * @param view
+	     */
+	    
+	    public void onToggleClicked(View view) {
+	        // Is the toggle on?
+	        boolean on = ((ToggleButton) view).isChecked();
+	        
+	        if (on) {
+	            // Enable tilt control
+	        	tiltEnabled =true;
+	        } else {
+	            // Disable tilt control
+	        	tiltEnabled = false;
+	        	tiltInfoDisplay.setText("Tilt Control is Off");
+	        }
+	    }
+	    
+	    
+	    
+	    
+	    /**
+	     * Sends the first waypoint in the list, and increments the waypoint counter variable.
+	     * Assumes that there is at least one waypoint in the list, with index 0.
+	     */
+	    public void runProgramOnClick(View view) {
+	    	waypointCounter = 0; //reset to 0.
+	    	
+			//get the next/current waypoint info from the waypoint list
+			String str = waypointList.get(waypointCounter);
+			
+			//change the target destination coordinates to the selected waypoint
+			destLat = reverseParseLat(str);  //updates the destination coordinates.
+			destLon = reverseParseLon(str);
+			//changes the target destination coordinates on the map:
+			if (myMap !=null){
+				destMarker.setPosition(new LatLng(destLat, destLon));
+			}
+			
+			//send UDP:
+			// message is a latitude-longitude string in the format latxx.xxxxxlonxx.xxxxx
+			try {
+							byte[] data = new byte[1024];
+							DatagramPacket dPack = new DatagramPacket(data,1024);
+							dPack.setData(str.getBytes());
+							outSocket.send(dPack);  //send command to Phone
+						
+					} catch (UnknownHostException e) {
+						e.printStackTrace();
+					} catch (IOException e) {
+						e.printStackTrace();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+			
+			waypointCounter++; //increment to next waypoint in the list.
+	    	
+	    } //end method runProgram onClick.
+	    
+	    
+
 
 //////////////////////// Nested Classes //////////////////////
 	
@@ -669,12 +975,59 @@ public class TabletMainActivity extends Activity implements LocationListener, Se
 		//receive
 		@Override
 		public void run() {
-			text.setText(text.getText().toString()+"Client Says: "+ msg + "\n");
+			
+			if  (text.getText().length() > 25000){	
+				//this is to prevent the app from being bogged down by endless messages.
+				text.setText("Older Msgs have been truncated.\n"); 
+			}
+			
+			text.setText(text.getText().toString()+"Client Says: "+ msg + "\n"); //displays what the phone said on Tablet screen
 			
 			//move the phone's marker on the map
 			if(msg.startsWith("lat") && (myMap !=null)) {
 				phoneMarker.setPosition(new LatLng(reverseParseLat(msg), reverseParseLon(msg)));
 			}
+			
+			//if the message is the phone reporting back that it reached a Waypoint, give the next waypoint on the list to the Phone.
+			if (msg.startsWith("reachedWP")){
+				//TODO
+				//error check to make sure that  the count is within the bounds of the waypointList
+				if (waypointCounter >= waypointList.size()){
+					//print that we are at the last waypoint, and don't send the next waypoint
+					text.append("We have reached the last waypoint in the list.\n");
+				}
+				else {
+				//get the next/current waypoint info from the waypoint list
+				String str = waypointList.get(waypointCounter);
+				
+				//change the target destination coordinates to the selected waypoint
+				destLat = reverseParseLat(str);  //updates the destination coordinates.
+				destLon = reverseParseLon(str);
+				//changes the target destination coordinates on the map:
+				if (myMap !=null){
+					destMarker.setPosition(new LatLng(destLat, destLon));
+				}
+				
+				//send UDP:
+				// message is a latitude-longitude string in the format latxx.xxxxxlonxx.xxxxx
+				try {
+								byte[] data = new byte[1024];
+								DatagramPacket dPack = new DatagramPacket(data,1024);
+								dPack.setData(str.getBytes());
+								outSocket.send(dPack);  //send command to Phone
+							
+						} catch (UnknownHostException e) {
+							e.printStackTrace();
+						} catch (IOException e) {
+							e.printStackTrace();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+				
+				waypointCounter++; //increment to next waypoint in the list.
+				}
+			}
+			
 			
 			//Following deprecated code assumes that the current device is a phone
 			//and relays messages to VEX
